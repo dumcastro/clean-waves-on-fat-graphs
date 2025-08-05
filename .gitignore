@@ -1,0 +1,7 @@
+GraphData/
+WaveData/
+Export/
+External/
+
+*.asv
+*.mat

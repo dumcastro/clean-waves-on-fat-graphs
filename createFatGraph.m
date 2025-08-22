@@ -62,9 +62,15 @@ function [alpha] = createFatGraph(Lx, widths, angles, options)
 
     % Apply small extension to avoid singularities
     if numel(widths) == 3
+    ver(1) = ver(1) - options.ep*1i - options.ep;
     ver(2) = ver(2) - options.ep*1i;
+    ver(3) = ver(3) - options.ep*1i;
+    ver(4) = ver(4) + options.ep;
     ver(5) = ver(5) + options.ep;
+    ver(6) = ver(6) + options.ep;
+    ver(7) = ver(7) + options.ep*1i;
     ver(8) = ver(8) + options.ep*1i;
+    ver(9) = ver(9) - options.ep + options.ep*1i;
     elseif numel(widths) == 2
     ver(2) = ver(2) - options.ep*1i;
     ver(5) = ver(5) + options.ep*1i;
@@ -110,14 +116,6 @@ function [alpha] = createFatGraph(Lx, widths, angles, options)
     w = Xi + 1i * Zeta;
     z = eval(f_tilde, alpha*w);
 
-    %% Compute Jacobian
-    dz = evaldiff(f_tilde, alpha*w);
-    J = (alpha^2)*abs(dz).^2;
-
-    % Fix zero Jacobian values
-    med = median(median(J));
-    J(J == 0) = med;
-    
     %% Dividing the domain in sectors
     node = ver(5); %physical node
     vert = evalinv(f_tilde,node)/alpha; % computing the critical node in canonical space
@@ -129,6 +127,33 @@ function [alpha] = createFatGraph(Lx, widths, angles, options)
     %w1 = alpha*w(:,1:th_xi); %branch 1 
     %w2 = alpha*w(1:th_zeta,th_xi:end); %branch 2
     %w3 = alpha*w(th_zeta+1:end,th_xi:end); %branch 3
+
+    %% Compute Jacobian
+    dz = evaldiff(f_tilde, alpha*w);
+    J = (alpha^2)*abs(dz).^2;
+
+    figure
+    surf(real(w), imag(w), J);
+
+    %% Preprocessing bugged Jacobian values
+    sz = size(J);
+    gap = 50;
+    Nzeta = sz(1); Nxi = sz(2);
+
+    med1 = median(median(J(:,1:th_xi - gap)));
+    J(:,1:th_xi - gap) = med1*ones(Nzeta,th_xi-gap);
+
+    med3 = median(median(J(th_zeta:end,th_xi + gap:end)));
+    J(th_zeta:end,th_xi + gap:end) = med3*ones(Nzeta-th_zeta+1, Nxi-th_xi-gap+1);
+    
+
+    med2 = median(median(J(1:th_zeta,th_xi+gap:end)));
+    J(J == 0) = med2;
+
+    
+    figure
+    surf(real(w), imag(w), J);
+
 
     %% Plot results if requested
     if options.plot_flag

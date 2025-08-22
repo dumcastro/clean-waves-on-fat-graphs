@@ -33,7 +33,8 @@ function [] = evolveWave(kappa, widths, angles, options)
         'travel_distance', 20,...
         'frames', 25,...
         'want_save', true,...
-        'point_source', false);
+        'point_source', false,...
+        'transverse_wave', false);
 
     % Merge user options with defaults
     option_names = fieldnames(default_options);
@@ -82,6 +83,15 @@ v = h.*J.^(1/2); % necessary velocity for unidirectional solution (right-going m
 if options.point_source
     h  = 20*a*exp(-((Xi-2*xi0+xi0/4).^2)/40 - (Zeta-zeta0/3).^2)/(20 * sigma^2);
     v = u;
+end
+
+if options.transverse_wave %(debug purposes)
+    % Initial data:
+    h = a*exp(-(Zeta-4).^2/ (2* kappa^4 * sigma^2));
+    u = -h; % necessary velocity for unidirectional solution (down-going mode only)
+    v = zeros(size(h));
+
+    %J = ones(size(J));
 end
 
 h = neumann_correction(h);
@@ -185,6 +195,7 @@ while max(h(:, end)) < tol
     
     [h, u, v] = enforce_barrier(h, u, v, th_zeta, th_xi);  % Enforce slit barrier
     
+    surf(Xi, Zeta, h)
     
     %% Saves selected number of frames
     if mod(iter,floor(numel(t_array)/options.frames))==0 || t == T-1-dt

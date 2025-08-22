@@ -85,10 +85,11 @@ function [] = processGraphData(Lx, widths, angles, options)
         
         %surf(real(data.w), imag(data.w), data.J);
         surf(tmp_Xi,tmp_Zeta,J(1:jmp_zeta:end,1:jmp_xi:end));
-        xlabel('Real Axis');
-        ylabel('Imaginary Axis');
+        xlabel('\xi'); ylabel('\zeta', 'Rotation', 0);
         xlim([real(data.vert)-10,real(data.vert)+10])
-        title('Jacobian Determinant of SC Transformation');
+        %title('Jacobian Determinant of SC Transformation');
+
+        set(gca, 'FontSize', 16)   % makes axis numbers larger
     end
     
 
@@ -101,13 +102,20 @@ function [] = processGraphData(Lx, widths, angles, options)
         scatter(data.Xi(:), data.Zeta(:), 100, 'filled');  % Flatten grids and plot
         xlim([real(data.vert)-gzoom,real(data.vert)+gzoom])
         ylim([imag(data.vert)-gzoom,imag(data.vert)+gzoom])
-        title('Meshgrid Visualization');
-        xlabel('\xi'); ylabel('\zeta');
+        %title('Meshgrid Visualization');
+        xlabel('\xi'); ylabel('\zeta', 'Rotation', 0);
         grid on; hold on,
         
-        scatter(real(data.vert), imag(data.vert) ,200,'*','red')
+        xcoord = [real(data.vert), data.xi(end)];
+        ycoord = [imag(data.vert), imag(data.vert)];
 
-        %scatter(real(data.w(data.th_zeta,data.th_xi)), imag(data.w(data.th_zeta,data.th_xi)), 'green', 'Filled')
+        scatter(real(data.vert), imag(data.vert) ,120,'red','d','filled')
+
+        plot(xcoord,ycoord, 'r-', 'LineWidth', 2)
+
+        set(gca, 'FontSize', 16)   % makes axis numbers larger
+
+        
 
 
     end

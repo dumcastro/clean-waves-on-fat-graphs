@@ -214,13 +214,13 @@ function [] = processWaveData(kappa, widths, angles, options)
             view(options.az, options.el);
             zlim([-0.02,.12])
             %caxis([min(h(:)), max(h(:))]);  % Set the color axis limits based on the data range
-            xlabel('X'); ylabel('Y'); zlabel('h');
+            xlabel('X'); ylabel('Y'); zlabel('h','Rotation', 0);
             %title(['Time evolution of wave profile = ',num2str(t)]);
             %title(mytitle)
+
+            set(gca, 'FontSize', 16)   % makes axis numbers larger
       
-
             pause(0.1)
-
 
             drawnow;
             

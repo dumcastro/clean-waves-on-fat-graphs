@@ -275,14 +275,50 @@ function [] = processWaveData(kappa, widths, angles, options)
         
     end
     
+
+    %% 2D plot
     if options.twoD_plot
         if numel(widths) == 2
         
             h = reshape(data.H(:,tmp(2)),size(z));
-            h = h(floor(end/2),:);
+            h = h(floor(end/2),:);   % final snapshot
+            
+            hh = reshape(data.H(:,1),size(z));
+            hh = hh(floor(end/2),:); % initial snapshot
+            
+            xi = real(data.data.w);   % x-axis
+            xi = xi(1,:);
+            
+            % Find main peaks
+            [~,loc_h]  = findpeaks(h, xi, 'SortStr','descend', 'NPeaks',1);
+            [~,loc_hh] = findpeaks(hh, xi, 'SortStr','descend', 'NPeaks',1);
 
-            plot(real(data.data.w),h)
-        
+            % Compute shift needed
+            shift = loc_h - loc_hh;
+            
+            % Shift the initial profile
+            hh_shifted = interp1(xi, hh, xi - shift, 'linear', 0);
+
+            figure;
+
+            % Use strong, distinguishable colors
+            plot(xi, h, 'LineWidth', 2.5, 'Color',[0 0.45 0.74])        % MATLAB blue
+            hold on
+            plot(xi, hh_shifted, '--', 'LineWidth', 2.5, 'Color',[0.85 0.33 0.1]) % MATLAB orange
+            
+            legend({'Final snapshot','Initial snapshot shifted'}, ...
+                   'Location','best', 'FontSize',18, 'Box','off')
+            
+            xlabel('\xi','FontSize',20)
+            %ylabel('Amplitude','FontSize',20)
+            
+            set(gca, 'FontSize',18, ...      % tick labels larger
+                     'LineWidth',1.5, ...    % axis lines thicker
+                     'TickDir','out', ...    % ticks outward
+                     'Box','off')            % remove top/right frame
+
+
+
         elseif numel(widths) == 3
             
             h = reshape(data.H(:,tmp(2)),size(z));

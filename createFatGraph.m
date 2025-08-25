@@ -62,15 +62,27 @@ function [alpha] = createFatGraph(Lx, widths, angles, options)
 
     % Apply small extension to avoid singularities
     if numel(widths) == 3
-    ver(1) = ver(1) - options.ep*1i - options.ep;
-    ver(2) = ver(2) - options.ep*1i;
-    ver(3) = ver(3) - options.ep*1i;
-    ver(4) = ver(4) + options.ep;
-    ver(5) = ver(5) + options.ep;
-    ver(6) = ver(6) + options.ep;
-    ver(7) = ver(7) + options.ep*1i;
-    ver(8) = ver(8) + options.ep*1i;
+    
+    thet = [0, angles(2), angles(2)+3*pi/2, angles(2), angles(3),...
+        angles(3) + 3*pi/2, angles(3), 0];
+    thet = pi + thet;
+
+    ver(1) = ver(1) -options.ep*1i - options.ep;
+    for j = 2:8
+        
+        A = [cos(thet(j-1)), - cos(thet(j-1)+(thet(j)-thet(j-1))/2) ;
+            sin(thet(j-1)), - sin(thet(j-1)+(thet(j)-thet(j-1))/2)];
+
+        b = [real(ver(j)-ver(j-1));imag(ver(j)-ver(j-1))];
+
+        lmdb = A\b;
+
+        ver(j) = ver(j-1) + lmdb(1)*exp(1i*thet(j-1));
+
+    end
+
     ver(9) = ver(9) - options.ep + options.ep*1i;
+
     elseif numel(widths) == 2
     ver(2) = ver(2) - options.ep*1i;
     ver(5) = ver(5) + options.ep*1i;
@@ -92,21 +104,21 @@ function [alpha] = createFatGraph(Lx, widths, angles, options)
     C_tilde = evalinv(f_tilde, P);
 
     % Calculate scaling factor
-    xi_lims = [min(real(vertex(C_tilde))), max(real(vertex(C_tilde)))];
+    %xi_lims = [min(real(vertex(C_tilde))), max(real(vertex(C_tilde)))];
     %zeta_lims = [min(imag(vertex(C_tilde)))+options.ep, max(imag(vertex(C_tilde)))-options.ep];
     zeta_lims = [min(imag(vertex(C_tilde))), max(imag(vertex(C_tilde)))];
     %Lxi_tilde = diff(xi_lims);
     Lzeta_tilde = diff(zeta_lims);
     %alpha1 = Lxi_tilde/(2*Lx);
-    alpha = Lzeta_tilde/widths(1); % This is the scaling factor
+    alpha = Lzeta_tilde/(widths(1)+2*options.ep); % This is the scaling factor
     C = (1/alpha)*C_tilde;
 
     %% Create computational grid
-    xi_lims = [min(real(vertex(C))), max(real(vertex(C)))];
+    xi_lims = [min(real(vertex(C)))+options.ep, max(real(vertex(C)))-options.ep];
     %zeta_lims = [min(imag(vertex(C)))+options.ep, max(imag(vertex(C)))];
-    zeta_lims = [min(imag(vertex(C))), max(imag(vertex(C)))];
+    zeta_lims = [min(imag(vertex(C)))+options.ep, max(imag(vertex(C)))-options.ep];
     
-    options.dzeta = zeta_lims(2)/(options.Nzeta-1); %dxi, dzeta are obtained from Nzeta choice
+    options.dzeta = (zeta_lims(2)-zeta_lims(1))/(options.Nzeta-1); %dxi, dzeta are obtained from Nzeta choice
     options.dxi = options.dzeta;
 
     xi = xi_lims(1):options.dxi:xi_lims(2);
@@ -136,6 +148,8 @@ function [alpha] = createFatGraph(Lx, widths, angles, options)
     surf(real(w), imag(w), J);
 
     %% Preprocessing bugged Jacobian values
+
+    %{
     sz = size(J);
     gap = 50;
     Nzeta = sz(1); Nxi = sz(2);
@@ -153,7 +167,7 @@ function [alpha] = createFatGraph(Lx, widths, angles, options)
     
     figure
     surf(real(w), imag(w), J);
-
+    %}
 
     %% Plot results if requested
     if options.plot_flag

@@ -5,18 +5,15 @@ addpath('External/')
 
 % Main arguments
 widths = [5, 2.5, 2.5];
+angles = [0, pi - pi/6, pi + pi/6];
 
-%angles = [0, pi - pi/24, pi + pi/6]; %asymmetric case
-
-%----
-%angles = [0, pi - pi/2 + pi/24, pi+pi/2-pi/24]; % symmetric case
-angles = [0, pi - pi/24, pi + pi/24];
-
-kappa = 0.2;
+kappa = 0.1;
 
 lambda_f = widths(1)/kappa;
-travel_distance = 1;
+travel_distance = 2;
 Lx = lambda_f * (travel_distance + 1) / 2;
+%Lx = 200;
+
 
 % Secondary parameters
 parameter_station % Go through preferred secondary arguments
@@ -29,10 +26,10 @@ createFatGraph(Lx, widths, angles,graph_options);
 
 %% Testing process Graph data
 
-%processGraphData(Lx, widths, angles,graph_vis_options)
+processGraphData(Lx, widths, angles,graph_vis_options)
 
 %% Testing evolveWave
-%{
+%
 if numel(widths) == 3
 evolveWave(kappa, widths, angles,wave_options)
 elseif numel(widths) == 2
@@ -41,4 +38,4 @@ end
 %}
 %% Testing processWave
 
-%processWaveData(kappa, widths, angles,wave_vis_options)
+processWaveData(kappa, widths, angles,wave_vis_options)

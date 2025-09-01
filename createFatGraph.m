@@ -59,15 +59,32 @@ function [alpha] = createFatGraph(Lx, widths, angles, options)
 
     %% Process polygon vertices
     ver = fg.complex_vertices;
-
+    
+    
     % Apply small extension to avoid singularities
     if numel(widths) == 3
-    
+    %
     thet = [0, angles(2), angles(2)+3*pi/2, angles(2), angles(3),...
-        angles(3) + 3*pi/2, angles(3), 0];
+        angles(3) + pi/2, angles(3)+pi/2, angles(3)];
     thet = pi + thet;
 
-    ver(1) = ver(1) -options.ep*1i - options.ep;
+    ver(1) = ver(1) -options.ep*1i;
+    ver(9) = ver(9) + options.ep*1i;
+
+    ver(3) = ver(3) + options.ep*exp(1i*thet(3));
+    ver(7) = ver(7) + options.ep*exp(1i*thet(7));
+
+    lmbd = (-options.ep-imag(ver(3)))/sin(thet(2));
+
+    ver(2) = ver(3) + lmbd*exp(1i*thet(2));
+
+    lmbd = (widths(1)+options.ep-imag(ver(7)))/sin(thet(8));
+
+    ver(8) = ver(7) + lmbd*exp(1i*thet(8));
+
+
+
+    %{
     for j = 2:8
         
         A = [cos(thet(j-1)), - cos(thet(j-1)+(thet(j)-thet(j-1))/2) ;
@@ -80,9 +97,13 @@ function [alpha] = createFatGraph(Lx, widths, angles, options)
         ver(j) = ver(j-1) + lmdb(1)*exp(1i*thet(j-1));
 
     end
+    %}
 
-    ver(9) = ver(9) - options.ep + options.ep*1i;
 
+
+    ver = ver + options.ep*1i;
+
+    %}
     elseif numel(widths) == 2
     ver(2) = ver(2) - options.ep*1i;
     ver(5) = ver(5) + options.ep*1i;
@@ -95,6 +116,7 @@ function [alpha] = createFatGraph(Lx, widths, angles, options)
     sang = [0.5000, 1, 0.5000, 0.5000, 1, 0.5000];  
     end
     P = polygon(ver);
+    
     %P = polyedit(P);
 
     % Create SC map to rectangle
@@ -111,10 +133,16 @@ function [alpha] = createFatGraph(Lx, widths, angles, options)
     Lzeta_tilde = diff(zeta_lims);
     %alpha1 = Lxi_tilde/(2*Lx);
     alpha = Lzeta_tilde/(widths(1)+2*options.ep); % This is the scaling factor
+
+    C_tilde = C_tilde -alpha*(options.ep*1i);
+    
+
+
     C = (1/alpha)*C_tilde;
+    %C = C -options.ep*1i - options.ep;
 
     %% Create computational grid
-    xi_lims = [min(real(vertex(C)))+options.ep, max(real(vertex(C)))-options.ep];
+    xi_lims = [min(real(vertex(C))), max(real(vertex(C)))];
     %zeta_lims = [min(imag(vertex(C)))+options.ep, max(imag(vertex(C)))];
     zeta_lims = [min(imag(vertex(C)))+options.ep, max(imag(vertex(C)))-options.ep];
     
@@ -149,20 +177,33 @@ function [alpha] = createFatGraph(Lx, widths, angles, options)
 
     %% Preprocessing bugged Jacobian values
 
-    %{
+    %
     sz = size(J);
     gap = 50;
     Nzeta = sz(1); Nxi = sz(2);
 
-    med1 = median(median(J(:,1:th_xi - gap)));
-    J(:,1:th_xi - gap) = med1*ones(Nzeta,th_xi-gap);
+    %med1 = mean(mean(J(:,1:th_xi - gap)));
+    %J(:,1:th_xi - gap) = med1*ones(Nzeta,th_xi-gap);
+
+
+    ble = real(vertex(C));
+    ble = round(ble, 3);
+    tmp = max(ble);
+
+    ble(ble == tmp) = 0;
+    tmp = max(ble);
+    tmp = find(xi <= tmp, 1, 'last');
+
+
+    med2 = median(median(J(1:th_zeta,th_xi+gap:tmp)));
+    J(1:th_zeta,th_xi+gap:end) = med2*ones(th_zeta, Nxi-th_xi-gap+1);
 
     med3 = median(median(J(th_zeta:end,th_xi + gap:end)));
-    J(th_zeta:end,th_xi + gap:end) = med3*ones(Nzeta-th_zeta+1, Nxi-th_xi-gap+1);
+    J(th_zeta+1:end,th_xi + gap:end) = med3*ones(Nzeta-th_zeta, Nxi-th_xi-gap+1);
     
 
-    med2 = median(median(J(1:th_zeta,th_xi+gap:end)));
-    J(J == 0) = med2;
+    %med2 = median(median(J(1:th_zeta,th_xi+gap:end)));
+    %J(J == 0) = med2;
 
     
     figure

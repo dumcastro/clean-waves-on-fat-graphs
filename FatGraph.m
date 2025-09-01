@@ -91,8 +91,8 @@ classdef FatGraph < handle
 
             cv = [cv1, node, flip(cv2)];
 
-            elseif numel(obj.angles) == 2 && ~obj.angles(2) == pi
-                
+            elseif numel(obj.angles) == 2 && ~(obj.angles(2) == pi)
+              
             % Calculate and return complex number representation
             rl = obj.edge_length;
             w1 = obj.widths(1);

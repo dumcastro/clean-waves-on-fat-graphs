@@ -62,6 +62,7 @@ function [] = processWaveData(kappa, widths, angles, options)
 
     [Nzeta, ~] = deal(ngrid(1),ngrid(2));
     
+    if numel(widths) == 3
     zindexes1 = [2:jmpz:th_zeta-1, th_zeta, th_zeta+1, th_zeta+2:jmpz:Nzeta-1];
     zindexes2 = [2:jmpz:th_zeta-1, th_zeta];
     zindexes3 = [th_zeta+1, th_zeta+2:jmpz:Nzeta-1];
@@ -77,6 +78,7 @@ function [] = processWaveData(kappa, widths, angles, options)
     X1=real(z1); Y1=imag(z1);
     X2=real(z2); Y2=imag(z2);
     X3=real(z3); Y3=imag(z3);
+    end
     
     %%
     %{

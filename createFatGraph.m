@@ -1,4 +1,5 @@
 function [alpha] = createFatGraph(Lx, widths, angles, options)
+%{
 %CREATEFATGRAPH Creates a fat graph and computes Schwarz-Christoffel mapping
 %   [fg, f_tilde, C, J, w, z] = createFatGraph(Lx, widths, angles) creates a Y-shaped
 %   fat graph with specified dimensions and computes its SC transformation.
@@ -26,6 +27,7 @@ function [alpha] = createFatGraph(Lx, widths, angles, options)
 %   .ep         - Domain extension parameter (default = 0.01)
 %   .want_save  - Flag to save results (default = false)
 %   .plot_flag  - Flag to generate plots (default = true)
+%}
 
     % Set default parameter values
     if nargin < 4
@@ -57,57 +59,7 @@ function [alpha] = createFatGraph(Lx, widths, angles, options)
     %% Create fat graph object
     fg = FatGraph(Lx, widths, angles)
 
-    %% Process polygon vertices
     ver = fg.complex_vertices;
-    
-    
-    % Apply small extension to avoid singularities
-    if numel(widths) == 3
-    %
-    thet = [0, angles(2), angles(2)+3*pi/2, angles(2), angles(3),...
-        angles(3) + pi/2, angles(3)+pi/2, angles(3)];
-    thet = pi + thet;
-
-    ver(1) = ver(1) -options.ep*1i;
-    ver(9) = ver(9) + options.ep*1i;
-
-    ver(3) = ver(3) + options.ep*exp(1i*thet(3));
-    ver(7) = ver(7) + options.ep*exp(1i*thet(7));
-
-    lmbd = (-options.ep-imag(ver(3)))/sin(thet(2));
-
-    ver(2) = ver(3) + lmbd*exp(1i*thet(2));
-
-    lmbd = (widths(1)+options.ep-imag(ver(7)))/sin(thet(8));
-
-    ver(8) = ver(7) + lmbd*exp(1i*thet(8));
-
-
-
-    %{
-    for j = 2:8
-        
-        A = [cos(thet(j-1)), - cos(thet(j-1)+(thet(j)-thet(j-1))/2) ;
-            sin(thet(j-1)), - sin(thet(j-1)+(thet(j)-thet(j-1))/2)];
-
-        b = [real(ver(j)-ver(j-1));imag(ver(j)-ver(j-1))];
-
-        lmdb = A\b;
-
-        ver(j) = ver(j-1) + lmdb(1)*exp(1i*thet(j-1));
-
-    end
-    %}
-
-
-
-    ver = ver + options.ep*1i;
-
-    %}
-    elseif numel(widths) == 2
-    ver(2) = ver(2) - options.ep*1i;
-    ver(5) = ver(5) + options.ep*1i;
-    end
 
     %% Schwarz-Christoffel mapping
     if numel(widths) == 3
@@ -116,14 +68,17 @@ function [alpha] = createFatGraph(Lx, widths, angles, options)
     sang = [0.5000, 1, 0.5000, 0.5000, 1, 0.5000];  
     end
     P = polygon(ver);
+
+    P_ep = outermollif(P,options.ep,angles,widths);
+
+    %P_ep = polyedit(P_ep)
     
-    %P = polyedit(P);
 
     % Create SC map to rectangle
-    f_tilde = crrectmap(P, sang);
+    f_tilde = crrectmap(P_ep, sang);
 
     % Compute canonical domain
-    C_tilde = evalinv(f_tilde, P);
+    C_tilde = evalinv(f_tilde, P_ep);
 
     % Calculate scaling factor
     %xi_lims = [min(real(vertex(C_tilde))), max(real(vertex(C_tilde)))];
@@ -134,7 +89,7 @@ function [alpha] = createFatGraph(Lx, widths, angles, options)
     %alpha1 = Lxi_tilde/(2*Lx);
     alpha = Lzeta_tilde/(widths(1)+2*options.ep); % This is the scaling factor
 
-    C_tilde = C_tilde -alpha*(options.ep*1i);
+    %C_tilde = C_tilde -alpha*(options.ep*1i);
     
 
 
@@ -148,8 +103,19 @@ function [alpha] = createFatGraph(Lx, widths, angles, options)
     
     options.dzeta = (zeta_lims(2)-zeta_lims(1))/(options.Nzeta-1); %dxi, dzeta are obtained from Nzeta choice
     options.dxi = options.dzeta;
+    
 
+    ble = real(vertex(C));
+    ble = round(ble, 3);
+    tmp = max(ble);
+
+    ble(ble == tmp) = 0;
+    tmp = max(ble);
     xi = xi_lims(1):options.dxi:xi_lims(2);
+    tmp = find(xi <= tmp, 1, 'last');
+
+
+    xi = xi(1:tmp);
     zeta = zeta_lims(1):options.dzeta:zeta_lims(2);
 
     [Xi, Zeta] = meshgrid(xi, zeta);
@@ -177,7 +143,7 @@ function [alpha] = createFatGraph(Lx, widths, angles, options)
 
     %% Preprocessing bugged Jacobian values
 
-    %
+    %{
     sz = size(J);
     gap = 50;
     Nzeta = sz(1); Nxi = sz(2);
@@ -186,13 +152,7 @@ function [alpha] = createFatGraph(Lx, widths, angles, options)
     %J(:,1:th_xi - gap) = med1*ones(Nzeta,th_xi-gap);
 
 
-    ble = real(vertex(C));
-    ble = round(ble, 3);
-    tmp = max(ble);
-
-    ble(ble == tmp) = 0;
-    tmp = max(ble);
-    tmp = find(xi <= tmp, 1, 'last');
+    
 
 
     med2 = median(median(J(1:th_zeta,th_xi+gap:tmp)));

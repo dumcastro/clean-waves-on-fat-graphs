@@ -5,12 +5,12 @@ addpath('External/')
 
 % Main arguments
 widths = [5, 2.5, 2.5];
-angles = [0, pi - pi/6, pi + pi/6];
+angles = [0, pi - pi/6, pi + pi/3];
 
 kappa = 0.1;
 
 lambda_f = widths(1)/kappa;
-travel_distance = 2;
+travel_distance = 4;
 Lx = lambda_f * (travel_distance + 1) / 2;
 %Lx = 200;
 
@@ -26,7 +26,7 @@ createFatGraph(Lx, widths, angles,graph_options);
 
 %% Testing process Graph data
 
-processGraphData(Lx, widths, angles,graph_vis_options)
+%processGraphData(Lx, widths, angles,graph_vis_options)
 
 %% Testing evolveWave
 %

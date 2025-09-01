@@ -133,6 +133,9 @@ surf(Xi, Zeta, h), hold on
 plot3([data.xi(th_xi) data.xi(end)], [data.zeta(th_zeta) data.zeta(th_zeta)], [0 0], 'r-', 'LineWidth', 2);
 
 
+sz = size(J);
+J = ones(sz);
+
 %% Main loop % RK4 time-stepping
 %dist = 0;
 t = 0; iter=0;

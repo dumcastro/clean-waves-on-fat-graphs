@@ -58,10 +58,11 @@ z = data.z;
 w = data.w;
 xi_lims = data.xi_lims;
 Xi = data.Xi;
+xi = data.xi;
 Zeta = data.Zeta;
 J = data.J;
 th_zeta = data.th_zeta;
-th_xi = data.th_xi;
+th_xi = data.th_xi-data.tmp2;
 
 % Define Gaussian pulse parameters
 lambda_f = widths(1)/kappa;
@@ -71,12 +72,13 @@ sigma = comp_efetivo_can / 6.065; % (this is what sigma must be to make the effe
 
 zeta_lims = [imag(w(end,1)), imag(w(1,1))];
 
-xi0 = ((xi_lims(2))+(xi_lims(1)))/ 2;
+
+%xi0 = ((xi_lims(2))+(xi_lims(1)))/ 2;
 zeta0 = ((zeta_lims(2))+(zeta_lims(1)))/ 2;
 
 a = 0.1; %pulse height
 
-h = a*exp(-(Xi-xi0/2).^2/ (2 * sigma^2));
+h = a*exp(-(Xi-xi(floor(numel(xi)/4))).^2/ (2 * sigma^2));
 u = zeros(size(h));        % Initial velocity
 v = h.*J.^(1/2); % necessary velocity for unidirectional solution (right-going mode only)
 
@@ -133,17 +135,17 @@ surf(Xi, Zeta, h), hold on
 plot3([data.xi(th_xi) data.xi(end)], [data.zeta(th_zeta) data.zeta(th_zeta)], [0 0], 'r-', 'LineWidth', 2);
 
 
-sz = size(J);
-J = ones(sz);
+%sz = size(J);
+%J = ones(sz);
 
 %% Main loop % RK4 time-stepping
 %dist = 0;
 t = 0; iter=0;
 t_array = 0:dt:T;
 tol = 0.00001*a;
-while t < T
+%while t < T
 %while dist < options.travel_distance*comp_efetivo_can
-%while max(h(:, end)) < tol
+while max(h(:, end)) < tol
     %h_pre = h;
     %u_pre = u;
     %v_pre = v;

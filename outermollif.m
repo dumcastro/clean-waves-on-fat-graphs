@@ -45,8 +45,8 @@ function P_ep = outermollif(P,ep,angles,widths)
 
     %}
     else
-    ver(2) = ver(2) - options.ep*1i;
-    ver(5) = ver(5) + options.ep*1i;
+    ver(2) = ver(2) - ep*1i;
+    ver(5) = ver(5) + ep*1i;
     end
 
     P_ep = polygon(ver)

@@ -80,13 +80,17 @@ u = zeros(size(h));        % Initial velocity
 v = h.*J.^(1/2); % necessary velocity for unidirectional solution (right-going mode only)
 
 if options.point_source
-    h  = 20*a*exp(-((Xi-2*xi0+xi0/4).^2)/40 - (Zeta-zeta0/3).^2)/(20 * sigma^2);
+    sigma = 0.3;
+    xic = xi0/2; zetac = zeta0/2;
+    h  = a*exp((-((Xi-xic).^2) - (Zeta-zetac).^2)/sigma^2);
     v = u;
 end
 
 h = neumann_correction(h);
 u = impermiability_u(u);
 v = impermiability_v(v);
+
+surf(Xi,Zeta,h);
 
 %[h, u, v] = enforce_barrier(h, u, v, th_zeta, th_xi);  % Enforce slit barrier
 
@@ -131,10 +135,9 @@ tol = 0.05*a;
 while t < T
 %while dist < options.travel_distance*comp_efetivo_can
 %while max(h(:, end)) < tol
-    %h_pre = h;
-    %u_pre = u;
-    %v_pre = v;
+
     
+
     k1_u = -dt * (circshift(h, [ -1 0]) - circshift(h, [ 1 0])) / (2 * dxi);
     k1_v = -dt * (circshift(h, [ 0 -1]) - circshift(h, [0 1])) / (2 * dzeta);
     k1_h = -dt * ((circshift(u, [ -1 0]) - circshift(u, [ 1 0])) / (2 * dxi) +...
@@ -144,7 +147,9 @@ while t < T
     u1 = u + 0.5 * k1_u;
     v1 = v + 0.5 * k1_v;
     
-    %[h1, u1, v1] = enforce_barrier(h1, u1, v1, th_zeta, th_xi);  % Enforce slit barrier on partial rk4 sums
+    h1 = neumann_correction(h1);
+    u1 = impermiability_u(u1);
+    v1 = impermiability_v(v1);
     
     k2_u = -dt * (circshift(h1, [ -1 0]) - circshift(h1, [ 1 0])) / (2 * dxi);
     k2_v = -dt * (circshift(h1, [ 0 -1]) - circshift(h1, [ 0 1])) / (2 * dzeta);
@@ -155,20 +160,22 @@ while t < T
     u2 = u + 0.5 * k2_u;
     v2 = v + 0.5 * k2_v;
     
-    %[h2, u2, v2] = enforce_barrier(h2, u2, v2, th_zeta, th_xi);  % Enforce slit barrier on partial rk4 sums
-    
+    h2 = neumann_correction(h2);
+    u2 = impermiability_u(u2);
+    v2 = impermiability_v(v2);
     
     k3_u = -dt * (circshift(h2, [ -1 0]) - circshift(h2, [ 1 0])) / (2 * dxi);
     k3_v = -dt * (circshift(h2, [ 0 -1]) - circshift(h2, [ 0 1])) / (2 * dzeta);
     k3_h = -dt * ((circshift(u2, [ -1 0]) - circshift(u2, [ 1 0])) / (2 * dxi) + ...
         (circshift(v2, [ 0 -1]) - circshift(v2, [ 0 1])) / (2 * dzeta))./J;
-    
-    
+   
     h3 = h + k3_h;
     u3 = u + k3_u;
     v3 = v + k3_v;
-    
-    %[h3, u3, v3] = enforce_barrier(h3, u3, v3, th_zeta, th_xi);  % Enforce slit barrier on partial rk4 sums
+
+    h3 = neumann_correction(h3);
+    u3 = impermiability_u(u3);
+    v3 = impermiability_v(v3);
     
     k4_u = -dt * (circshift(h3, [ -1 0]) - circshift(h3, [ 1 0])) / (2 * dxi);
     k4_v = -dt * (circshift(h3, [0 -1]) - circshift(h3, [ 0 1])) / (2 * dzeta);
@@ -182,9 +189,6 @@ while t < T
     v = impermiability_v(v);
     h = neumann_correction(h);
     u = impermiability_u(u);
-    
-    %[h, u, v] = enforce_barrier(h, u, v, th_zeta, th_xi);  % Enforce slit barrier
-    
     
     %% Saves selected number of frames
     if mod(iter,floor(numel(t_array)/options.frames))==0 || t == T-1-dt

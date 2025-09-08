@@ -173,6 +173,8 @@ function [] = processWaveData(kappa, widths, angles, options)
 
             h = reshape(data.H(:,i),size(z));
 
+            if numel(widths) == 3
+
             hh=h;
 
             %{
@@ -222,9 +224,24 @@ function [] = processWaveData(kappa, widths, angles, options)
 
             set(gca, 'FontSize', 16)   % makes axis numbers larger
       
-            pause(0.1)
+            pause(0.3)
 
             drawnow;
+            else
+                mesh(data.X,data.Y,h)
+                view(options.az, options.el);
+                %zlim([-0.02,.12])
+                xlabel('X'); ylabel('Y'); zlabel('h','Rotation', 0);
+                %title(['Time evolution of wave profile = ',num2str(t)]);
+                %title(mytitle)
+    
+                set(gca, 'FontSize', 16)   % makes axis numbers larger
+          
+                pause(0.3)
+    
+                drawnow;
+            end
+
             
             if options.save_video
                 %while counter/i < 10
@@ -265,14 +282,14 @@ function [] = processWaveData(kappa, widths, angles, options)
         %
         %subplot(1, 2, 2);
         mesh(real(data.data.w),imag(data.data.w),h)
-        zlim([-0.05,0.1])
+        %zlim([-0.05,0.1])
 
         
         %title(mytitle)
         drawnow;
         
 
-        pause(0.1)
+        pause(0.3)
         end
         
     end
@@ -400,10 +417,8 @@ function [] = processWaveData(kappa, widths, angles, options)
             
             pause(0.3)
 
-
             drawnow;
             
-
         end
 
     end

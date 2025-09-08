@@ -104,23 +104,8 @@ function [alpha] = createFatGraph(Lx, widths, angles, options)
     options.dzeta = (zeta_lims(2)-zeta_lims(1))/(options.Nzeta-1); %dxi, dzeta are obtained from Nzeta choice
     options.dxi = options.dzeta;
     
-
-    ble = real(vertex(C));
-    ble = round(ble, 3);
-    tmp = max(ble);
-
-    ble(ble == tmp) = 0;
-    tmp = max(ble);
     xi = xi_lims(1):options.dxi:xi_lims(2);
-    tmp = find(xi <= tmp, 1, 'last');
-
-
-    xi = xi(1:tmp);
     zeta = zeta_lims(1):options.dzeta:zeta_lims(2);
-
-    [Xi, Zeta] = meshgrid(xi, zeta);
-    w = Xi + 1i * Zeta;
-    z = eval(f_tilde, alpha*w);
 
     %% Dividing the domain in sectors
     node = ver(5); %physical node
@@ -133,6 +118,29 @@ function [alpha] = createFatGraph(Lx, widths, angles, options)
     %w1 = alpha*w(:,1:th_xi); %branch 1 
     %w2 = alpha*w(1:th_zeta,th_xi:end); %branch 2
     %w3 = alpha*w(th_zeta+1:end,th_xi:end); %branch 3
+    
+    if numel(angles) == 3
+        if ~(angles(2) + angles(3) == 2*pi) % In asymmetric case, adjust xi to end where shorter leg ends
+        ble = real(vertex(C));
+        ble = round(ble, 3);
+        tmp = max(ble);
+    
+        ble(ble == tmp) = 0;
+        tmp = max(ble);
+        
+        tmp = find(xi <= tmp, 1, 'last');
+        tmp2 = tmp - th_xi;
+    
+        xi = xi(tmp2:tmp);
+
+        xi_lims= [xi(1),xi(end)];
+
+        end
+    end
+
+    [Xi, Zeta] = meshgrid(xi, zeta);
+    w = Xi + 1i * Zeta;
+    z = eval(f_tilde, alpha*w);
 
     %% Compute Jacobian
     dz = evaldiff(f_tilde, alpha*w);

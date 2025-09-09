@@ -131,7 +131,7 @@ function [alpha] = createFatGraph(Lx, widths, angles, options)
         tmp = find(xi <= tmp, 1, 'last');
         tmp2 = tmp - th_xi;
     
-        xi = xi(tmp2:tmp);
+        xi = xi(th_xi-tmp2:tmp);
 
         xi_lims= [xi(1),xi(end)];
 

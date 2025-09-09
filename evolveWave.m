@@ -62,7 +62,11 @@ xi = data.xi;
 Zeta = data.Zeta;
 J = data.J;
 th_zeta = data.th_zeta;
-th_xi = data.th_xi-data.tmp2;
+if ~(angles(2) + angles(3) == 2*pi)
+    th_xi = data.th_xi-data.tmp2;
+else
+    th_xi = data.th_xi;
+end
 
 % Define Gaussian pulse parameters
 lambda_f = widths(1)/kappa;
@@ -72,8 +76,7 @@ sigma = comp_efetivo_can / 6.065; % (this is what sigma must be to make the effe
 
 zeta_lims = [imag(w(end,1)), imag(w(1,1))];
 
-
-%xi0 = ((xi_lims(2))+(xi_lims(1)))/ 2;
+xi0 = ((xi_lims(2))+(xi_lims(1)))/ 2;
 zeta0 = ((zeta_lims(2))+(zeta_lims(1)))/ 2;
 
 a = 0.1; %pulse height
@@ -83,7 +86,9 @@ u = zeros(size(h));        % Initial velocity
 v = h.*J.^(1/2); % necessary velocity for unidirectional solution (right-going mode only)
 
 if options.point_source
-    h  = 20*a*exp(-((Xi-2*xi0+xi0/4).^2)/40 - (Zeta-zeta0/3).^2)/(20 * sigma^2);
+    sigma = 0.4;
+    xic = xi0; zetac = zeta0;
+    h  = a*exp((-((Xi-xic).^2) - (Zeta-zetac).^2)/sigma^2);
     v = u;
 end
 
@@ -143,9 +148,9 @@ plot3([data.xi(th_xi) data.xi(end)], [data.zeta(th_zeta) data.zeta(th_zeta)], [0
 t = 0; iter=0;
 t_array = 0:dt:T;
 tol = 0.00001*a;
-%while t < T
+while t < T
 %while dist < options.travel_distance*comp_efetivo_can
-while max(h(:, end)) < tol
+%while max(h(:, end)) < tol
     %h_pre = h;
     %u_pre = u;
     %v_pre = v;
@@ -319,13 +324,26 @@ end
 %% Slit boundary condition function
 function [h,u, v] = enforce_barrier(h, u, v, b1, b2)
     % Strict barrier enforcement
-    h(b1+1,b2:end) = h(b1+2,b2:end);   % h continues smoothly
+    h(b1+1,b2:end) = h(b1+2,b2:end);   
     u(b1+1,b2:end) = 0;
     %v(b1+1,b2:end) = 0;
     
-    h(b1-1, b2:end) = h(b1, b2:end); % h continues smoothly
+    h(b1-1, b2:end) = h(b1, b2:end); 
     u(b1,b2:end) = 0;
     %v(b1,b2:end) = 0;
+
+    v(:, 1) = 0; % Left boundary
+    v(:, end) = 0; % Right boundary
+
+    u(1, :) = 0; % Bottom boundary
+    u(end, :) = 0; % Top boundary
+
+    h(:, 1) = h(:, 2); % Left boundary
+    h(:, end) = h(:, end-1); % Right boundary   
+    
+    h(1, :) = h(2, :); % Bottom boundary
+    h(end, :) = h(end-1, :); % Top boundary
+    
 end
 
 

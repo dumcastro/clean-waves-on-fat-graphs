@@ -237,7 +237,7 @@ function [] = processWaveData(kappa, widths, angles, options)
     
                 set(gca, 'FontSize', 16)   % makes axis numbers larger
           
-                pause(0.3)
+                pause(0.2)
     
                 drawnow;
             end
@@ -289,7 +289,7 @@ function [] = processWaveData(kappa, widths, angles, options)
         drawnow;
         
 
-        pause(0.3)
+        pause(0.2)
         end
         
     end

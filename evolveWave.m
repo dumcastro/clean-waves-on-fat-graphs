@@ -63,7 +63,9 @@ Zeta = data.Zeta;
 J = data.J;
 th_zeta = data.th_zeta;
 if ~(angles(2) + angles(3) == 2*pi)
-    th_xi = data.th_xi-data.tmp2;
+    %th_xi = data.th_xi-data.tmp2;
+    th_xi = data.th_xi;
+
 else
     th_xi = data.th_xi;
 end
@@ -332,6 +334,7 @@ function [h,u, v] = enforce_barrier(h, u, v, b1, b2)
     u(b1,b2:end) = 0;
     %v(b1,b2:end) = 0;
 
+    %
     v(:, 1) = 0; % Left boundary
     v(:, end) = 0; % Right boundary
 
@@ -343,6 +346,7 @@ function [h,u, v] = enforce_barrier(h, u, v, b1, b2)
     
     h(1, :) = h(2, :); % Bottom boundary
     h(end, :) = h(end-1, :); % Top boundary
+    %}
     
 end
 

@@ -5,12 +5,12 @@ addpath('External/')
 
 % Main arguments
 widths = [5, 2.5 ,2.5];
-angles = [0, pi - pi/24, pi + pi/3];
+angles = [0, pi - pi/6, pi + pi/6];
 
 kappa = 0.15;
 
 lambda_f = widths(1)/kappa;
-travel_distance = 10;
+travel_distance = 4;
 Lx = lambda_f * (travel_distance + 1) / 2;
 %Lx = 200;
 
@@ -32,9 +32,8 @@ parameter_station % Go through preferred secondary arguments
 if numel(widths) == 3
 evolveWave(kappa, widths, angles,wave_options)
 elseif numel(widths) == 2
-evolveWave2(kappa, widths, angles,wave_options)    
+evolveWave2(kappa, widths, angles,wave_options)   
 end
 %}
 %% Testing processWave
-
 processWaveData(kappa, widths, angles,wave_vis_options)

@@ -56,43 +56,36 @@ function [alpha] = createFatGraph(Lx, widths, angles, options)
         end
     end
 
-    %% Create fat graph object
-    fg = FatGraph(Lx, widths, angles)
+    %% Step 1: Define vertices of P
+    fg = FatGraph(Lx, widths, angles) % Create fat graph object
 
     ver = fg.complex_vertices;
 
-    %% Schwarz-Christoffel mapping
     if numel(widths) == 3
     sang = [0.5000, 1, 0.5000, 0.5000, 2.0000, 0.5000, 0.5000, 1.0000, 0.5000];
     else
     sang = [0.5000, 1, 0.5000, 0.5000, 1, 0.5000];  
     end
     P = polygon(ver);
-
-    P_ep = outermollif(P,options.ep,angles,widths);
-
-    %P_ep = polyedit(P_ep)
     
-
-    % Create SC map to rectangle
-    f_tilde = crrectmap(P_ep, sang);
+    %% Step 2 (Outer mollification): sligthly larger domain
+    P_ep = outermollif(P,options.ep,angles,widths);
+   
+    %% Step 3: Calculate SC map to rectangle with slit
+    f_tilde = crrectmap(P_ep, sang); % Schwarz-Christoffel mapping
 
     % Compute canonical domain
     C_tilde = evalinv(f_tilde, P_ep);
 
-    % Calculate scaling factor
-    %xi_lims = [min(real(vertex(C_tilde))), max(real(vertex(C_tilde)))];
-    %zeta_lims = [min(imag(vertex(C_tilde)))+options.ep, max(imag(vertex(C_tilde)))-options.ep];
+    %% Step 4: Calculate scaling factor alpha
     zeta_lims = [min(imag(vertex(C_tilde))), max(imag(vertex(C_tilde)))];
-    %Lxi_tilde = diff(xi_lims);
     Lzeta_tilde = diff(zeta_lims);
-    %alpha1 = Lxi_tilde/(2*Lx);
     alpha = Lzeta_tilde/(widths(1)+2*options.ep); % This is the scaling factor
 
-    %C_tilde = C_tilde -alpha*(options.ep*1i);
+    %% Step 5: Uptade domain by translation
+    C_tilde = C_tilde -alpha*(options.ep*1i); %(vertex n1 is now the origin!)
     
-
-
+    %% Step 6: Get C by dilation
     C = (1/alpha)*C_tilde;
     %C = C -options.ep*1i - options.ep;
 
@@ -102,6 +95,7 @@ function [alpha] = createFatGraph(Lx, widths, angles, options)
     zeta_lims = [min(imag(vertex(C)))+options.ep, max(imag(vertex(C)))-options.ep];
     
     options.dzeta = (zeta_lims(2)-zeta_lims(1))/(options.Nzeta-1); %dxi, dzeta are obtained from Nzeta choice
+
     options.dxi = options.dzeta;
     
     xi = xi_lims(1):options.dxi:xi_lims(2);
@@ -109,7 +103,7 @@ function [alpha] = createFatGraph(Lx, widths, angles, options)
 
     %% Dividing the domain in sectors
     node = ver(5); %physical node
-    vert = evalinv(f_tilde,node)/alpha; % computing the critical node in canonical space
+    vert = (evalinv(f_tilde,node)-alpha*(options.ep*1i))/alpha; % computing the critical node in canonical space
     targ_xi = real(vert);
     targ_zeta = imag(vert);
 
@@ -137,10 +131,34 @@ function [alpha] = createFatGraph(Lx, widths, angles, options)
 
         end
     end
+    
 
     [Xi, Zeta] = meshgrid(xi, zeta);
     w = Xi + 1i * Zeta;
-    z = eval(f_tilde, alpha*w);
+
+    %
+    % Visualize with scatter
+        gzoom = .5;
+        
+        figure;
+        scatter(Xi(:), Zeta(:), 100, 'filled');  % Flatten grids and plot
+        xlim([real(vert)-gzoom,real(vert)+gzoom])
+        ylim([imag(vert)-gzoom,imag(vert)+gzoom])
+        %title('Meshgrid Visualization');
+        xlabel('\xi'); ylabel('\zeta', 'Rotation', 0);
+        grid on; hold on,
+        
+        xcoord = [real(vert), xi(end)];
+        ycoord = [imag(vert), imag(vert)];
+
+        scatter(real(vert), imag(vert) ,120,'red','d','filled')
+
+        plot(xcoord,ycoord, 'r-', 'LineWidth', 2)
+
+        set(gca, 'FontSize', 16)   % makes axis numbers larger
+    %}
+
+    z = eval(f_tilde, alpha*w+1i*alpha*options.ep);
 
     %% Compute Jacobian
     dz = evaldiff(f_tilde, alpha*w);
@@ -159,21 +177,15 @@ function [alpha] = createFatGraph(Lx, widths, angles, options)
     %med1 = mean(mean(J(:,1:th_xi - gap)));
     %J(:,1:th_xi - gap) = med1*ones(Nzeta,th_xi-gap);
 
-
-    
-
-
     med2 = median(median(J(1:th_zeta,th_xi+gap:tmp)));
     J(1:th_zeta,th_xi+gap:end) = med2*ones(th_zeta, Nxi-th_xi-gap+1);
 
     med3 = median(median(J(th_zeta:end,th_xi + gap:end)));
     J(th_zeta+1:end,th_xi + gap:end) = med3*ones(Nzeta-th_zeta, Nxi-th_xi-gap+1);
-    
-
+   
     %med2 = median(median(J(1:th_zeta,th_xi+gap:end)));
     %J(J == 0) = med2;
 
-    
     figure
     surf(real(w), imag(w), J);
     %}

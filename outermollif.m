@@ -41,7 +41,7 @@ function P_ep = outermollif(P,ep,angles,widths)
     end
     %}
 
-    ver = ver + ep*1i;
+    %ver = ver + ep*1i;
 
     %}
     else

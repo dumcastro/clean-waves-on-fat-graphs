@@ -150,9 +150,9 @@ plot3([data.xi(th_xi) data.xi(end)], [data.zeta(th_zeta) data.zeta(th_zeta)], [0
 t = 0; iter=0;
 t_array = 0:dt:T;
 tol = 0.00001*a;
-while t < T
+%while t < T
 %while dist < options.travel_distance*comp_efetivo_can
-%while max(h(:, end)) < tol
+while max(h(:, end)) < tol
     %h_pre = h;
     %u_pre = u;
     %v_pre = v;
@@ -313,6 +313,13 @@ while t < T
         message = ['Exceeded final time ceiling. T = ', num2str(T)]
         break
     end
+
+    if max(h(:, end)) >= tol
+        message = 'Wave front reaching the end of comp. domain. Stop.'
+        break
+    end
+
+
 end
 
 %% Save data if requested

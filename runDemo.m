@@ -5,12 +5,12 @@ addpath('External/')
 
 % Main arguments
 widths = [5, 5 ,5];
-angles = [0, pi - pi/24, pi + pi/2 + pi/12];
+angles = [0, pi - pi/24, pi + pi/2 - pi/24];
 
-kappa = 0.3;
+kappa = 0.17;
 
 lambda_f = widths(1)/kappa;
-travel_distance = 20;
+travel_distance = 30;
 Lx = lambda_f * (travel_distance + 1) / 2;
 %Lx = 200;
 

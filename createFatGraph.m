@@ -115,28 +115,29 @@ function [alpha] = createFatGraph(Lx, widths, angles, options)
     
     if numel(angles) == 3
         if ~(angles(2) + angles(3) == 2*pi) % In asymmetric case, adjust xi to end where shorter leg ends
-        ble = real(vertex(C));
-        ble = round(ble, 3);
-        tmp = max(ble);
+        realCVerts = real(vertex(C));
+        realCVerts = round(realCVerts, 3);
+        longlegVal = max(realCVerts);
     
-        ble(ble == tmp) = 0;
-        tmp = max(ble);
+        realCVerts(realCVerts == longlegVal) = 0;
+        shortlegVal = max(realCVerts);
         
-        tmp = find(xi <= tmp, 1, 'last');
-        tmp2 = tmp - th_xi;
+        shortlegIndex = find(xi <= shortlegVal, 1, 'last');
+        lenPriorToNode = floor((shortlegIndex - th_xi)/2);
     
-        xi = xi(th_xi-tmp2:tmp);
+        xi = xi(th_xi-lenPriorToNode:shortlegIndex);
 
         xi_lims= [xi(1),xi(end)];
 
         end
     end
     
+    th_xi = find(xi<targ_xi, 1, 'last');
 
     [Xi, Zeta] = meshgrid(xi, zeta);
     w = Xi + 1i * Zeta;
 
-    %
+    %{
     % Visualize with scatter
         gzoom = .5;
         
@@ -168,6 +169,9 @@ function [alpha] = createFatGraph(Lx, widths, angles, options)
     surf(real(w), imag(w), J);
 
     %% Preprocessing bugged Jacobian values
+    gap = 30;
+    J(1,th_xi+gap:end) = J(2,th_xi+gap:end);
+    %J(:,end) = J(:,end-1);
 
     %{
     sz = size(J);

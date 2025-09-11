@@ -3,7 +3,7 @@
 %% Wave parameters
 wave_options = struct();
 wave_options.point_source = false;
-wave_options.T = 60; %Final time of execution
+wave_options.T = 65; %Final time of execution
 wave_options.want_save = true;
 
 %% Wave view options
@@ -18,9 +18,9 @@ wave_vis_options.twoD_animation = true;
 
 %% Graph parameters
 graph_options = struct();
-graph_options.ep = widths(1)*0.01;
-graph_options.Nzeta = widths(1)*4;
-%graph_options.Nzeta = 52;
+graph_options.ep = widths(1)*0.05;
+%graph_options.Nzeta = widths(1)*4;
+graph_options.Nzeta = 40;
 %graph_options.dxi = widths(1)*0.04;
 %graph_options.dzeta = widths(1)*0.04;
 graph_options.plot_flag = true;

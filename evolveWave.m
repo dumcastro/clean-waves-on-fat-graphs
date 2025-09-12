@@ -62,13 +62,7 @@ xi = data.xi;
 Zeta = data.Zeta;
 J = data.J;
 th_zeta = data.th_zeta;
-if ~(angles(2) + angles(3) == 2*pi)
-    %th_xi = data.th_xi-data.tmp2;
-    th_xi = data.th_xi;
-
-else
-    th_xi = data.th_xi;
-end
+th_xi = data.th_xi;
 
 % Define Gaussian pulse parameters
 lambda_f = widths(1)/kappa;
@@ -149,7 +143,7 @@ plot3([data.xi(th_xi) data.xi(end)], [data.zeta(th_zeta) data.zeta(th_zeta)], [0
 %dist = 0;
 t = 0; iter=0;
 t_array = 0:dt:T;
-tol = 0.00001*a;
+tol = 0.0001*a;
 %while t < T
 %while dist < options.travel_distance*comp_efetivo_can
 while max(h(:, end)) < tol
@@ -307,7 +301,9 @@ while max(h(:, end)) < tol
     %dist = abs(xi0 - x0f); %gets distance between current and initial peak positions
     
     iter=iter+1;
-    max(h(:, end))
+    
+    display(['W. height at the end: ', num2str(max(h(:, end))), ' out of', num2str(tol)])
+    display(['Time: ', num2str(t)])
     
     if t > T
         message = ['Exceeded final time ceiling. T = ', num2str(T)]

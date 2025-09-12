@@ -52,6 +52,8 @@ function [] = processWaveData(kappa, widths, angles, options)
     %J = data.J;
     th_zeta = data.th_zeta;
     th_xi = data.th_xi;
+    l = data.data.longlegVal;
+    s = data.data.shortlegVal;
 
     
     %% Dividing the domain into sectors from plotting purposes
@@ -337,8 +339,6 @@ function [] = processWaveData(kappa, widths, angles, options)
                      'TickDir','out', ...    % ticks outward
                      'Box','off')            % remove top/right frame
 
-
-
         elseif numel(widths) == 3
             
             h = reshape(data.H(:,tmp(2)),size(z));
@@ -350,7 +350,7 @@ function [] = processWaveData(kappa, widths, angles, options)
             xi = real(data.data.w);
             xi1 = xi(floor(end/2),1:th_xi);
             xi2 = xi(floor((1+th_zeta)/2),th_xi:end);
-            xi3 = xi(floor((end+th_zeta)/2),th_xi:end);
+            xi3 = (s/l)*xi(floor((end+th_zeta)/2),th_xi:end);
             
             
             figure;
@@ -373,7 +373,6 @@ function [] = processWaveData(kappa, widths, angles, options)
     if options.twoD_animation
        
         %mytitle = ['Angle = ', num2str(rad2deg(angles(3)-angles(2))), ' degrees'];
-        
         
         figure
         %for i = 1:data.options.frames-2
@@ -402,8 +401,28 @@ function [] = processWaveData(kappa, widths, angles, options)
             xi = real(data.data.w);
             xi1 = xi(floor(end/2),1:th_xi);
             xi2 = xi(floor((1+th_zeta)/2),th_xi:end);
-            xi3 = xi(floor((end+th_zeta)/2),th_xi:end);
+
             
+       
+            xi3 = xi(floor((end+th_zeta)/2),th_xi:end);
+
+            tmp = xi3(1);
+            %dilation = (s/l);
+            dilation = 0.645;
+
+            xi3 = xi3 - tmp;
+            xi3 = dilation*xi3;
+            xi3 = xi3 + tmp;
+
+            % call helper for each branch
+            [loc2, pk2] = find_main_peak(h2);
+            [loc3, pk3] = find_main_peak(h3);
+            
+            xpeak2 = xi2(loc2);
+            xpeak3 = xi3(loc3);
+            shift = xpeak2 - xpeak3;   % amount to move branch k so peaks coincide in x
+
+            xi3_aligned = xi3 + shift;
 
             subplot(2,1,1) % branch i
             plot(xi1, h1,'LineWidth',1,'DisplayName','Branch i')
@@ -411,15 +430,15 @@ function [] = processWaveData(kappa, widths, angles, options)
             legend('show')
             
             subplot(2,1,2) % branch j
-            plot(xi2, h2, '-.','LineWidth',1,'DisplayName','Branch j'), hold on
-            plot(xi3, h3, '--','LineWidth',1,'DisplayName','Branch k'), hold off
+            plot(xi2, h2, '-.','LineWidth',1,'DisplayName','Branch j'); hold on
+            plot(xi3_aligned, h3, '--','LineWidth',1,'DisplayName','Branch k (shifted)'); hold off
+            title('Transmitted waves (aligned peaks)')
             title('Transmitted waves') 
             legend('show')
             
             pause(0.3)
 
-            drawnow;
-            
+            drawnow;          
         end
 
     end
@@ -429,3 +448,24 @@ function [] = processWaveData(kappa, widths, angles, options)
     end
 
 
+function [loc,pkval] = find_main_peak(h)
+    % try plain findpeaks (largest)
+    [pks,locs] = findpeaks(h, 'SortStr','descend');
+    if ~isempty(locs)
+        loc = locs(1);
+        pkval = pks(1);
+        return
+    end
+    % try with a modest prominence threshold
+    prom = 0.1*(max(h)-min(h));
+    [pks,locs] = findpeaks(h, 'MinPeakProminence', prom, 'SortStr','descend');
+    if ~isempty(locs)
+        loc = locs(1);
+        pkval = pks(1);
+        return
+    end
+    % fallback: global maximum
+    [pkval, loc] = max(h);
+end
+
+end

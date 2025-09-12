@@ -57,7 +57,7 @@ function [alpha] = createFatGraph(Lx, widths, angles, options)
     end
 
     %% Step 1: Define vertices of P
-    fg = FatGraph(Lx, widths, angles) % Create fat graph object
+    fg = FatGraph(Lx, widths, angles); % Create fat graph object
 
     ver = fg.complex_vertices;
 
@@ -113,22 +113,24 @@ function [alpha] = createFatGraph(Lx, widths, angles, options)
     %w2 = alpha*w(1:th_zeta,th_xi:end); %branch 2
     %w3 = alpha*w(th_zeta+1:end,th_xi:end); %branch 3
     
+    realCVerts = real(vertex(C));
+    realCVerts = round(realCVerts, 3);
+    longlegVal = max(realCVerts);
+
     if numel(angles) == 3
         if ~(angles(2) + angles(3) == 2*pi) % In asymmetric case, adjust xi to end where shorter leg ends
-        realCVerts = real(vertex(C));
-        realCVerts = round(realCVerts, 3);
-        longlegVal = max(realCVerts);
-    
+        
         realCVerts(realCVerts == longlegVal) = 0;
         shortlegVal = max(realCVerts);
         
         shortlegIndex = find(xi <= shortlegVal, 1, 'last');
-        lenPriorToNode = floor((shortlegIndex - th_xi)/2);
+        lenPriorToNode = floor((shortlegIndex - th_xi)/1);
     
         xi = xi(th_xi-lenPriorToNode:shortlegIndex);
 
         xi_lims= [xi(1),xi(end)];
-
+        else
+            shortlegVal = longlegVal;
         end
     end
     
@@ -221,4 +223,6 @@ function [alpha] = createFatGraph(Lx, widths, angles, options)
         ang_display = round(angles, 3);
         save(['GraphData/widths= ', mat2str(widths), 'angles= ', mat2str(ang_display), '.mat'])
     end
+
+    display('Mesh defined in canonical domain')
 end

@@ -4,63 +4,51 @@ clear all, close all, clc
 addpath('External/')
 
 %Setting parameters
-widths = [5, 2.5, 2.5]; %fix
+widths = [5, 5, 5]; 
 
-angles = [0, pi - pi/24, pi + pi/2 - pi/4];
+angles_high = [0, pi - pi/24, pi + pi/2 - pi/12];
+angles_low = [0, pi - pi/24, pi + pi/12];
 
 theta_high = num2str(rad2deg(angles_high(3)-angles_high(2)));
 theta_low = num2str(rad2deg(angles_low(3)-angles_low(2)));
 
-kappa_high = 0.4;
-kappa_mid = 0.1;
-kappa_low = 0.04;
+kappa_high = 0.3;
+kappa_low = 0.1;
 
 parameter_station % Go through preferred secondary arguments
 
 %angles = angles_low;
 %kappa = kappa_low;
 
-
-%Go for it...!
-
 figure(1)
 
-% Low kappa
-subplot(3,1,1) % low kappa
-[h1,th_xi,xi] = loading(angles, kappa_low, widths);
-plot(xi(1:th_xi), h1,'LineWidth',1, 'DisplayName', ['Angle = ',theta_low]), hold on
-plot(xi(1:th_xi), h2, '-.','LineWidth',1, 'DisplayName', ['Angle = ',theta_high]) 
-plot(xi(1:th_xi), h3, '-','LineWidth',1, 'DisplayName', ['Angle = ',theta_high]), hold off
-legend('show') % Show legend
-title(['\kappa = ', num2str(kappa_low)]) % Title for Low Kappa subplot
+%% Transmitted waves comparison
+%subplot(2,2,1) % low kappa, low angle
+[~,h2,h3, th_xi,xi] = loading(angles_low, kappa_low, widths);
+plot(xi(th_xi:end), h2, '-.','LineWidth',2, 'DisplayName', ['Angle = ',angles_low(2)]), hold on 
+plot(xi(th_xi:end), h3, '--','LineWidth',2, 'DisplayName', ['Angle = ',angles_low(3)]), hold off
 
-% Mid kappa
-subplot(3,1,2) % mid kappa
-[h1,th_xi,xi] = loading(angles_low, kappa_mid, widths);
-plot(xi(1:th_xi), h1,'LineWidth',1, 'DisplayName', ['Angle = ',theta_low]), hold on
-plot(xi(1:th_xi), h2, '-.','LineWidth',1, 'DisplayName', ['Angle = ',theta_high]) 
-plot(xi(1:th_xi), h3, '-','LineWidth',1, 'DisplayName', ['Angle = ',theta_high]), hold off
+%processWaveData(kappa_low, widths, angles_low,wave_vis_options)
 
-title(['\kappa = ', num2str(kappa_mid)]) % Title for Mid Kappa subplot
+%{
+subplot(2,2,2) % high kappa, low angle
+[~,h2,h3, th_xi,xi] = loading(angles_low, kappa_high, widths);
+plot(xi(th_xi:end), h2, '-.','LineWidth',2, 'DisplayName', ['Angle = ',angles_low(2)]), hold on
+plot(xi(th_xi:end), h3, '--','LineWidth',2, 'DisplayName', ['Angle = ',angles_low(3)]), hold off
 
-% High kappa
-subplot(3,1,3) % high kappa
-[h1,th_xi,xi] = loading(angles_low, kappa_high, widths);
-plot(xi(1:th_xi), h1,'LineWidth',1, 'DisplayName', ['Angle = ',theta_low]), hold on
-plot(xi(1:th_xi), h2, '-.','LineWidth',1, 'DisplayName', ['Angle = ',theta_high]) 
-plot(xi(1:th_xi), h3, '-','LineWidth',1, 'DisplayName', ['Angle = ',theta_high]), hold off
+subplot(2,2,3) % low kappa, high angle
+[~,h2,h3, th_xi,xi] = loading(angles_high, kappa_low, widths);
+plot(xi(th_xi:end), h2, '-.','LineWidth',2, 'DisplayName', ['Angle = ',angles_high(2)]), hold on
+plot(xi(th_xi:end), h3, '--','LineWidth',2, 'DisplayName', ['Angle = ',angles_high(3)]), hold off
 
-%legend('show') % Show legend
-title(['\kappa = ', num2str(kappa_high)]) % Title for High Kappa subplot
-
+subplot(2,2,4) % high kappa, high angle
+[~,h2,h3, th_xi,xi] = loading(angles_high, kappa_high, widths);
+plot(xi(th_xi:end), h2, '-.','LineWidth',2, 'DisplayName', ['Angle = ',angles_high(2)]), hold on
+plot(xi(th_xi:end), h3, '--','LineWidth',2, 'DisplayName', ['Angle = ',angles_high(3)]), hold off
+%}
 
 %---------------------
 function [h1,h2,h3,th_xi,xi] = loading(angles, kappa, widths)
-
-%lambda_f = widths(1)/kappa; %fix
-%travel_distance = 2; %fix
-%Lx = lambda_f * (travel_distance + 1) / 2; %fix
-
 ang_display = round(angles .* 1000) ./ 1000;
 data = load(['WaveData/kappa', num2str(kappa),'widths= ', mat2str(widths), 'angles= ', mat2str(ang_display), '.mat']);
 

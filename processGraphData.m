@@ -51,21 +51,23 @@ function [] = processGraphData(Lx, widths, angles, options)
 
     %% Load fat Graph
     ang_display = round(angles, 3);
-    data = load(['GraphData/widths= ', mat2str(widths), 'angles= ', mat2str(ang_display), '.mat']);
+    %data = load(['GraphData/widths= ', mat2str(widths), 'angles= ', mat2str(ang_display), '.mat']);
+    load(['GraphData/widths= ', mat2str(widths), 'angles= ', mat2str(ang_display), '.mat'],...
+                'w', 'J', 'z','th_xi','th_zeta','xi', 'zeta', 'Xi', 'Zeta', 'dxi','dzeta', 'vert');
 
     %% Plot results if requested
     if options.plotMap
         figure;
         subplot(1, 3, 1);
-        plot(data.P, 'b', 'LineWidth', 2, 'k');
+        plot(P, 'b', 'LineWidth', 2, 'k');
         title('Physical Region');
 
         subplot(1, 3, 2);
-        plot(data.C_tilde, 'r', 'LineWidth', 2);
+        plot(C_tilde, 'r', 'LineWidth', 2);
         title('Numerical canonical domain');
 
         subplot(1, 3, 3);
-        plot(data.C, 'y', 'LineWidth', 2);
+        plot(C, 'y', 'LineWidth', 2);
         title('Canonical domain width = 1');
     end
     
@@ -73,9 +75,9 @@ function [] = processGraphData(Lx, widths, angles, options)
     if options.plotJ
         figure;
         
-        tmp_Xi = real(data.w);
-        tmp_Zeta = imag(data.w);
-        J = data.J;
+        tmp_Xi = real(w);
+        tmp_Zeta = imag( w);
+        J = J;
         
         jmp_xi = options.jmp_xi;
         jmp_zeta = options.jmp_zeta;
@@ -83,10 +85,10 @@ function [] = processGraphData(Lx, widths, angles, options)
         tmp_Xi = tmp_Xi(1:jmp_zeta:end,1:jmp_xi:end);
         tmp_Zeta = tmp_Zeta(1:jmp_zeta:end,1:jmp_xi:end);
         
-        %surf(real(data.w), imag(data.w), data.J);
+        %surf(real(w), imag(w), J);
         surf(tmp_Xi,tmp_Zeta,J(1:jmp_zeta:end,1:jmp_xi:end));
         xlabel('\xi'); ylabel('\zeta', 'Rotation', 0);
-        xlim([real(data.vert)-10,real(data.vert)+10])
+        xlim([real(vert)-10,real(vert)+10])
         %title('Jacobian Determinant of SC Transformation');
 
         set(gca, 'FontSize', 16)   % makes axis numbers larger
@@ -99,17 +101,17 @@ function [] = processGraphData(Lx, widths, angles, options)
         gzoom = .5;
         
         figure;
-        scatter(data.Xi(:), data.Zeta(:), 100, 'filled');  % Flatten grids and plot
-        xlim([real(data.vert)-gzoom,real(data.vert)+gzoom])
-        ylim([imag(data.vert)-gzoom,imag(data.vert)+gzoom])
+        scatter(Xi(:), Zeta(:), 100, 'filled');  % Flatten grids and plot
+        xlim([real(vert)-gzoom,real(vert)+gzoom])
+        ylim([imag(vert)-gzoom,imag(vert)+gzoom])
         %title('Meshgrid Visualization');
         xlabel('\xi'); ylabel('\zeta', 'Rotation', 0);
         grid on; hold on,
         
-        xcoord = [real(data.vert), data.xi(end)];
-        ycoord = [imag(data.vert), imag(data.vert)];
+        xcoord = [real(vert), xi(end)];
+        ycoord = [imag(vert), imag(vert)];
 
-        scatter(real(data.vert), imag(data.vert) ,120,'red','d','filled')
+        scatter(real(vert), imag(vert) ,120,'red','d','filled')
 
         plot(xcoord,ycoord, 'r-', 'LineWidth', 2)
 

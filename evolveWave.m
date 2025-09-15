@@ -1,4 +1,4 @@
-function [] = evolveWave(kappa, widths, angles, options)
+function [H,U,V,h] = evolveWave(kappa, widths, angles, options)
 %EVOLVEWAVE Linear wave evolution
 %   Choose geometry of fat graph and solve wave evolution in that domain
 
@@ -46,15 +46,17 @@ function [] = evolveWave(kappa, widths, angles, options)
 
 %% Load pre-generated graph data
 ang_display = round(angles, 3);
-data = load(['GraphData/widths= ', mat2str(widths), 'angles= ', mat2str(ang_display), '.mat']);
+%data = load(['GraphData/widths= ', mat2str(widths), 'angles= ', mat2str(ang_display), '.mat']);
+load(['GraphData/widths= ', mat2str(widths), 'angles= ', mat2str(ang_display), '.mat'],...
+            'w', 'J', 'z','th_xi','th_zeta','xi', 'zeta', 'Xi', 'Zeta', 'dxi','dzeta');
     
 %% Setting parameters and initial data
 dt = options.dt;
 T = options.T;
+%{
 dxi = data.options.dxi;
 dzeta = data.options.dzeta;
 %alpha = data.alpha;
-z = data.z;
 w = data.w;
 xi_lims = data.xi_lims;
 Xi = data.Xi;
@@ -63,6 +65,7 @@ Zeta = data.Zeta;
 J = data.J;
 th_zeta = data.th_zeta;
 th_xi = data.th_xi;
+%}
 
 % Define Gaussian pulse parameters
 lambda_f = widths(1)/kappa;
@@ -70,10 +73,8 @@ comp_efetivo_can = lambda_f;
 sigma = comp_efetivo_can / 6.065; % (this is what sigma must be to make the effective wavelength in canonical
 % space to be alpha*lambda_f)
 
-zeta_lims = [imag(w(end,1)), imag(w(1,1))];
-
-xi0 = ((xi_lims(2))+(xi_lims(1)))/ 2;
-zeta0 = ((zeta_lims(2))+(zeta_lims(1)))/ 2;
+xi0 = ((xi(end))+(xi(1)))/ 2;
+zeta0 = ((zeta(end))+(zeta(1)))/ 2;
 
 a = 0.1; %pulse height
 
@@ -97,44 +98,22 @@ if options.transverse_wave %(debug purposes)
     %J = ones(size(J));
 end
 
-h = neumann_correction(h);
-u = impermiability_u(u);
-v = impermiability_v(v);
+%h = neumann_correction(h);
+%u = impermiability_u(u);
+%v = impermiability_v(v);
 
 [h, u, v] = enforce_barrier(h, u, v, th_zeta, th_xi);  % Enforce slit barrier
 
 %% Setting wave data
 
-H = reshape(h, numel(data.J),1);
-U = reshape(u, numel(data.J),1);
-V = reshape(v, numel(data.J),1);
-
-%% Precompute the forward mapping
-%z = eval(f, w);
-
-%{
-%z1 = eval(f, w1);
-%z2 = eval(f, w2);
-%z3 = eval(f, w3);
-%}
-
-z1=z(:,1:th_xi); %branch 1 
-z2=z(1:th_zeta,th_xi:end); %branch 2
-z3=z(th_zeta+1:end,th_xi:end); %branch 3
-
-% Extract the real and imaginary parts of the forward-mapped grid
-X = real(z);
-Y = imag(z);
-
-X1=real(z1); Y1=imag(z1);
-X2=real(z2); Y2=imag(z2);
-X3=real(z3); Y3=imag(z3);
+H = reshape(h, numel(J),1);
+U = reshape(u, numel(J),1);
+V = reshape(v, numel(J),1);
 
 %% Plot initial data
 
 surf(Xi, Zeta, h), hold on
-plot3([data.xi(th_xi) data.xi(end)], [data.zeta(th_zeta) data.zeta(th_zeta)], [0 0], 'r-', 'LineWidth', 2);
-
+plot3([xi(th_xi) xi(end)], [zeta(th_zeta) zeta(th_zeta)], [0 0], 'r-', 'LineWidth', 2);
 
 %sz = size(J);
 %J = ones(sz);
@@ -211,13 +190,7 @@ while max(h(:, end)) < tol
         V = [V, reshape(v,numel(J),1)];
         
         surf(Xi, Zeta, h), hold on
-        plot3([data.xi(th_xi) data.xi(end)], [data.zeta(th_zeta) data.zeta(th_zeta)], [0 0], 'r-', 'LineWidth', 2);
-        
-        
-        %plot3(data.xi(th_xi+10),data.zeta(th_zeta), [0 0], 'x')
-        %plot3(data.xi(th_xi+10),data.zeta(th_zeta+1), [0 0], 'x')
-        %plot3(data.xi(th_xi+10),data.zeta(th_zeta-1), [0 0], 'x')
-        %plot3(data.xi(th_xi+10),data.zeta(th_zeta-2), [0 0], 'x')
+        plot3([xi(th_xi) xi(end)], [zeta(th_zeta) zeta(th_zeta)], [0 0], 'r-', 'LineWidth', 2);
         
         hold off
         
@@ -321,7 +294,8 @@ end
 %% Save data if requested
     if options.want_save
         ang_display = round(angles, 3);
-        save(['WaveData/kappa', num2str(kappa),'widths= ', mat2str(widths), 'angles= ', mat2str(ang_display), '.mat'])
+        save(['WaveData/kappa', num2str(kappa),'widths= ', mat2str(widths), 'angles= ', mat2str(ang_display), '.mat'], ...
+            'H','U', 'V','h')
     end
   
 % Aux functions    

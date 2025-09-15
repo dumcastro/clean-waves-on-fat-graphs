@@ -4,7 +4,7 @@ clear all, close all, clc
 addpath('External/')
 
 %Setting parameters
-widths = [2.5, 2.5]; %fix
+widths = [2.5, 2.5]; 
 
 angles_high = [0, pi + pi/2 - pi/24];
 angles_low = [0, pi + pi/24];

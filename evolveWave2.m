@@ -1,4 +1,4 @@
-function [] = evolveWave(kappa, widths, angles, options)
+function [H,U,V,h] = evolveWave2(kappa, widths, angles, options)
 %EVOLVEWAVE Linear wave evolution
 %   Choose geometry of fat graph and solve wave evolution in that domain
 
@@ -45,22 +45,12 @@ function [] = evolveWave(kappa, widths, angles, options)
 
 %% Load pre-generated graph data
 ang_display = round(angles, 3);
-data = load(['GraphData/widths= ', mat2str(widths), 'angles= ', mat2str(ang_display), '.mat']);
+load(['GraphData/widths= ', mat2str(widths), 'angles= ', mat2str(ang_display), '.mat'],...
+            'J','xi', 'zeta', 'Xi', 'Zeta', 'dxi','dzeta');
     
 %% Setting parameters and initial data
 dt = options.dt;
 T = options.T;
-dxi = data.options.dxi;
-dzeta = data.options.dzeta;
-%alpha = data.alpha;
-z = data.z;
-w = data.w;
-xi_lims = data.xi_lims;
-Xi = data.Xi;
-Zeta = data.Zeta;
-J = data.J;
-th_zeta = data.th_zeta;
-th_xi = data.th_xi;
 
 % Define Gaussian pulse parameters
 lambda_f = widths(1)/kappa;
@@ -68,10 +58,8 @@ comp_efetivo_can = lambda_f;
 sigma = comp_efetivo_can / 6.065; % (this is what sigma must be to make the effective wavelength in canonical
 % space to be alpha*lambda_f)
 
-zeta_lims = [imag(w(end,1)), imag(w(1,1))];
-
-xi0 = ((xi_lims(2))+(xi_lims(1)))/ 2;
-zeta0 = ((zeta_lims(2))+(zeta_lims(1)))/ 2;
+xi0 = ((xi(end))+(xi(1)))/ 2;
+zeta0 = ((zeta(end))+(zeta(1)))/ 2;
 
 a = 0.1; %pulse height
 
@@ -100,44 +88,17 @@ H = reshape(h, numel(data.J),1);
 U = reshape(u, numel(data.J),1);
 V = reshape(v, numel(data.J),1);
 
-%% Precompute the forward mapping
-%z = eval(f, w);
-
-%{
-%z1 = eval(f, w1);
-%z2 = eval(f, w2);
-%z3 = eval(f, w3);
-%}
-
-z1=z(:,1:th_xi); %branch 1 
-z2=z(1:th_zeta,th_xi:end); %branch 2
-z3=z(th_zeta+1:end,th_xi:end); %branch 3
-
-% Extract the real and imaginary parts of the forward-mapped grid
-X = real(z);
-Y = imag(z);
-
-X1=real(z1); Y1=imag(z1);
-X2=real(z2); Y2=imag(z2);
-X3=real(z3); Y3=imag(z3);
-
 %% Plot initial data
-
 surf(Xi, Zeta, h), hold on
-plot3([data.xi(th_xi) data.xi(end)], [data.zeta(th_zeta) data.zeta(th_zeta)], [0 0], 'r-', 'LineWidth', 2);
-
 
 %% Main loop % RK4 time-stepping
-dist = 0;
+%dist = 0;
 t = 0; iter=0;
 t_array = 0:dt:T;
-tol = 0.05*a;
-while t < T
+tol = 0.001*a;
+%while t < T
 %while dist < options.travel_distance*comp_efetivo_can
-%while max(h(:, end)) < tol
-
-    
-
+while max(h(:, end)) < tol
     k1_u = -dt * (circshift(h, [ -1 0]) - circshift(h, [ 1 0])) / (2 * dxi);
     k1_v = -dt * (circshift(h, [ 0 -1]) - circshift(h, [0 1])) / (2 * dzeta);
     k1_h = -dt * ((circshift(u, [ -1 0]) - circshift(u, [ 1 0])) / (2 * dxi) +...
@@ -299,24 +260,11 @@ end
 %% Save data if requested
     if options.want_save
         ang_display = round(angles, 3);
-        save(['WaveData/kappa', num2str(kappa),'widths= ', mat2str(widths), 'angles= ', mat2str(ang_display), '.mat'])
+        save(['WaveData/kappa', num2str(kappa),'widths= ', mat2str(widths), 'angles= ', mat2str(ang_display), '.mat'],...
+            'H','U', 'V','h')
     end
   
 % Aux functions    
-   
-%% Slit boundary condition function
-function [h,u, v] = enforce_barrier(h, u, v, b1, b2)
-    % Strict barrier enforcement
-    h(b1+1,b2:end) = h(b1+2,b2:end);   % h continues smoothly
-    u(b1+1,b2:end) = 0;
-    %v(b1+1,b2:end) = 0;
-    
-    h(b1-1, b2:end) = h(b1, b2:end); % h continues smoothly
-    u(b1,b2:end) = 0;
-    %v(b1,b2:end) = 0;
-end
-
-
 %% Exterior boundary contidtion functions
 function v = impermiability_v(v)
     % Set v to zero along the boundaries

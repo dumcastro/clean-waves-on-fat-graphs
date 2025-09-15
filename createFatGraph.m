@@ -94,12 +94,11 @@ function [alpha] = createFatGraph(Lx, widths, angles, options)
     %zeta_lims = [min(imag(vertex(C)))+options.ep, max(imag(vertex(C)))];
     zeta_lims = [min(imag(vertex(C)))+options.ep, max(imag(vertex(C)))-options.ep];
     
-    options.dzeta = (zeta_lims(2)-zeta_lims(1))/(options.Nzeta-1); %dxi, dzeta are obtained from Nzeta choice
-
-    options.dxi = options.dzeta;
+    dzeta = (zeta_lims(2)-zeta_lims(1))/(options.Nzeta-1); %dxi, dzeta are obtained from Nzeta choice
+    dxi = dzeta;
     
-    xi = xi_lims(1):options.dxi:xi_lims(2);
-    zeta = zeta_lims(1):options.dzeta:zeta_lims(2);
+    xi = xi_lims(1):dxi:xi_lims(2);
+    zeta = zeta_lims(1):dzeta:zeta_lims(2);
 
     %% Dividing the domain in sectors
     node = ver(5); %physical node
@@ -224,6 +223,10 @@ function [alpha] = createFatGraph(Lx, widths, angles, options)
     %% Save data if requested
     if options.want_save
         ang_display = round(angles, 3);
+
+        clear zeta_lims xi_lims angles fg k lenPriorToNode Lzeta_tilde realCVerts sang...
+            dz
+
         save(['GraphData/widths= ', mat2str(widths), 'angles= ', mat2str(ang_display), '.mat'])
     end
 

@@ -401,9 +401,6 @@ function [] = processWaveData(kappa, widths, angles, options)
             xi = real(data.data.w);
             xi1 = xi(floor(end/2),1:th_xi);
             xi2 = xi(floor((1+th_zeta)/2),th_xi:end);
-
-            
-       
             xi3 = xi(floor((end+th_zeta)/2),th_xi:end);
 
             tmp = xi3(1);
@@ -448,7 +445,7 @@ function [] = processWaveData(kappa, widths, angles, options)
     end
 
 
-function [loc,pkval] = find_main_peak(h)
+    function [loc,pkval] = find_main_peak(h)
     % try plain findpeaks (largest)
     [pks,locs] = findpeaks(h, 'SortStr','descend');
     if ~isempty(locs)

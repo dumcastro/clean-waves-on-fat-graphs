@@ -57,7 +57,7 @@ function [alpha] = createFatGraph(Lx, widths, angles, options)
     end
 
     %% Step 1: Define vertices of P
-    fg = FatGraph(Lx, widths, angles); % Create fat graph object
+    fg = FatGraph(Lx, widths, angles) % Create fat graph object
 
     ver = fg.complex_vertices;
 
@@ -118,7 +118,7 @@ function [alpha] = createFatGraph(Lx, widths, angles, options)
     longlegVal = max(realCVerts);
 
     if numel(angles) == 3
-        if ~(angles(2) + angles(3) == 2*pi) % In asymmetric case, adjust xi to end where shorter leg ends
+        if ~(angles(2) + angles(3) == 2*pi) || ~(widths(2) == widths(3)) % In asymmetric case, adjust xi to end where shorter leg ends
         
         realCVerts(realCVerts == longlegVal) = 0;
         shortlegVal = max(realCVerts);
@@ -168,13 +168,16 @@ function [alpha] = createFatGraph(Lx, widths, angles, options)
     J = (alpha^2)*abs(dz).^2;
 
     figure
-    surf(real(w), imag(w), J);
+    %surf(real(w), imag(w), J);
 
     %% Preprocessing bugged Jacobian values
-    gap = 30;
-    J(1,th_xi+gap:end) = J(2,th_xi+gap:end);
+    %gap = 30;
+    %J(1,th_xi+gap:end) = J(2,th_xi+gap:end);
     %J(:,end) = J(:,end-1);
+    J(1,:) = J(2,:);
+    %J(:,1) = J(:,2);
 
+    surf(real(w), imag(w), J);
     %{
     sz = size(J);
     gap = 50;

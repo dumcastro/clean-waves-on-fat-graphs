@@ -84,7 +84,7 @@ v = h.*J.^(1/2); % necessary velocity for unidirectional solution (right-going m
 
 if options.point_source
     sigma = 0.4;
-    xic = xi0; zetac = zeta0;
+    xic = 1.1*xi0; zetac = 1.4*zeta0;
     h  = a*exp((-((Xi-xic).^2) - (Zeta-zetac).^2)/sigma^2);
     v = u;
 end
@@ -180,7 +180,7 @@ while max(h(:, end)) < tol
     
     [h, u, v] = enforce_barrier(h, u, v, th_zeta, th_xi);  % Enforce slit barrier
     
-    surf(Xi, Zeta, h)
+    surf(Xi, Zeta, h);
     
     %% Saves selected number of frames
     if mod(iter,floor(numel(t_array)/options.frames))==0 || t == T-1-dt
@@ -295,7 +295,7 @@ end
     if options.want_save
         ang_display = round(angles, 3);
         save(['WaveData/kappa', num2str(kappa),'widths= ', mat2str(widths), 'angles= ', mat2str(ang_display), '.mat'], ...
-            'H','U', 'V','h')
+            'H','U', 'V','h');
     end
   
 % Aux functions    

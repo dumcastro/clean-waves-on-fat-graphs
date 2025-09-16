@@ -131,7 +131,7 @@ function [] = processWaveData(kappa, widths, angles, options)
 
     if options.plot_canonical
        
-        mesh(real(w),imag(w),h)
+        mesh(real(w),imag(w),h);
         zlim([-0.05,a])
 
         drawnow;

@@ -2,18 +2,18 @@
 
 %% Wave parameters
 wave_options = struct();
-wave_options.point_source = false;
-wave_options.T = 30; %Final time of execution
+wave_options.point_source = true;
+wave_options.T = 15; %Final time of execution
 wave_options.want_save = true;
 
 %% Wave view options
 wave_vis_options = struct();
 wave_vis_options.play_movie_phys = true;
-wave_vis_options.play_movie_canonical = false;
+wave_vis_options.play_movie_canonical = true;
 wave_vis_options.jmp_xi = 1;
 wave_vis_options.jmp_zeta = 1;
 wave_vis_options.twoD_plot = false;
-wave_vis_options.twoD_animation = true;
+wave_vis_options.twoD_animation = false;
 
 
 %% Graph parameters

@@ -8,10 +8,10 @@ widths = [5, 5 ,5];
 %thetas = pi/12: pi/6 :pi/2-pi/12;
 angles = [0, pi - pi/12, pi + pi/4];
 
-kappa = 0.3;
+kappa = 0.6;
 
 lambda_f = widths(1)/kappa;
-travel_distance = 8;
+travel_distance = 4;
 Lx = lambda_f * (travel_distance + 1) / 2;
 %Lx = 200;
 
@@ -26,7 +26,7 @@ parameter_station % Go through preferred secondary arguments
 
 %% Testing process Graph data
 
-processGraphData(Lx, widths, angles,graph_vis_options)
+%processGraphData(Lx, widths, angles,graph_vis_options)
 
 %% Testing evolveWave
 %

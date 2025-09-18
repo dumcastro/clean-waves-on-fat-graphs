@@ -227,7 +227,8 @@ function [alpha] = createFatGraph(Lx, widths, angles, options)
         clear zeta_lims xi_lims angles fg k lenPriorToNode Lzeta_tilde realCVerts sang...
             dz
 
-        save(['GraphData/widths= ', mat2str(widths), 'angles= ', mat2str(ang_display), '.mat'])
+        save(['GraphData/widths=', mat2str(widths),'_angles=', mat2str(ang_display),'_length=',...
+            mat2str(Lx), '.mat'])
     end
 
     display('Mesh defined in canonical domain')

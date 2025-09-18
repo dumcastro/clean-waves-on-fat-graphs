@@ -5,18 +5,16 @@ addpath('External/')
 
 % Main arguments
 widths = [5, 5, 5];
-theta2 = pi/12; theta3 = 5*pi/12;
+theta2 = pi/30; theta3 = 5*pi/12;
 angles = [0, pi - theta2, pi + theta3];
 
-kappa = 0.4;
-
-lambda_f = widths(1)/kappa;
-travel_distance = 8;
-Lx = lambda_f * (travel_distance + 1) / 2;
-%Lx = 200;
+kappa = 0.3;
 
 % Secondary parameters
 parameter_station % Go through preferred secondary arguments
+lambda_f = widths(1)/kappa;
+Lx = lambda_f * (travel_distance + 1) / 2;
+%Lx = 200;
 
 %% Testing FatGraph
 %fg = FatGraph(Lx, widths, angles)
@@ -31,10 +29,10 @@ createFatGraph(Lx, widths, angles,graph_options);
 %% Testing evolveWave
 %
 if numel(widths) == 3
-evolveWave(kappa, widths, angles,wave_options)
+evolveWave(kappa, Lx, widths, angles,wave_options)
 elseif numel(widths) == 2
-evolveWave2(kappa, widths, angles,wave_options)   
+evolveWave2(kappa, Lx, widths, angles,wave_options)   
 end
 %}
 %% Testing processWave
-processWaveData(kappa, widths, angles,wave_vis_options)
+processWaveData(kappa, Lx, widths, angles,wave_vis_options)

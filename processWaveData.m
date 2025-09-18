@@ -2,7 +2,7 @@
 % Author: Eduardo Castro <eduardocastro@MacBook-Air-de-Eduardo.local>
 % Created: 2025-06-03
 
-function [] = processWaveData(kappa, widths, angles, options)
+function [] = processWaveData(kappa, Lx, widths, angles, options)
 
 % Set default parameter values
     if nargin < 4
@@ -40,11 +40,13 @@ function [] = processWaveData(kappa, widths, angles, options)
     %% Load wave Graph
     ang_display = round(angles .* 1000) ./ 1000;
 
-    load(['GraphData/widths= ', mat2str(widths), 'angles= ', mat2str(ang_display), '.mat'],...
+    load(['GraphData/widths=', mat2str(widths), '_angles=', mat2str(ang_display), '_length=',...
+            mat2str(Lx),'.mat'],...
             'w', 'J', 'z','th_xi','th_zeta','xi',...
             'zeta', 'Xi', 'Zeta', 'dxi','dzeta','longlegVal','shortlegVal');
 
-    load(['WaveData/kappa', num2str(kappa),'widths= ', mat2str(widths), 'angles= ', mat2str(ang_display), '.mat'], ...
+    load(['WaveData/kappa=', num2str(kappa),'widths= ', mat2str(widths), 'angles= ', mat2str(ang_display), '_length=',...
+            mat2str(Lx),'.mat'], ...
             'H','U', 'V','h')
 
     %%

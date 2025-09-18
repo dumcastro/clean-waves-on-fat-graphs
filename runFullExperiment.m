@@ -7,17 +7,16 @@ width_sweep = {[5,5,5]};
 anglesStart = [0, pi - pi/30, pi + 0];
 angles = anglesStart;
 
-kappas = 0.1:0.1:0.4;
-thetas = 3*pi/12: pi/6 :pi/2-pi/12;
+kappas = 0.3;
+thetas = 5*pi/12;
 
 %angle_sweep = {[0, pi - pi/30, pi + pi/10],[0, pi - pi/30, pi + pi/2 - pi/30];};
 %kappa_sweep = {0.08, 0.25, 0.35};
 
-travel_distance = 10;
+parameter_station % Go through preferred secondary arguments
 
 for kk = 1:length(width_sweep)
     widths = width_sweep{kk};
-    parameter_station % Go through preferred secondary arguments
     for ii = 1:length(kappas)
         kappa = kappas(ii);
         lambda_f = widths(1)/kappa;
@@ -28,9 +27,9 @@ for kk = 1:length(width_sweep)
     
             createFatGraph(Lx, widths, angles,graph_options);
     
-            evolveWave(kappa, widths, angles,wave_options);
+            evolveWave(kappa, Lx, widths, angles,wave_options);
     
-            clc, close all
+            close all
         end
         angles = anglesStart;
 

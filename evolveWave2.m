@@ -1,4 +1,4 @@
-function [H,U,V,h] = evolveWave2(kappa, widths, angles, options)
+function [H,U,V,h] = evolveWave2(kappa, Lx, widths, angles, options)
 %EVOLVEWAVE Linear wave evolution
 %   Choose geometry of fat graph and solve wave evolution in that domain
 
@@ -45,7 +45,8 @@ function [H,U,V,h] = evolveWave2(kappa, widths, angles, options)
 
 %% Load pre-generated graph data
 ang_display = round(angles, 3);
-load(['GraphData/widths= ', mat2str(widths), 'angles= ', mat2str(ang_display), '.mat'],...
+load(['GraphData/widths= ', mat2str(widths), 'angles= ', mat2str(ang_display), '_length=',...
+            mat2str(Lx),'.mat'],...
             'J','xi', 'zeta', 'Xi', 'Zeta', 'dxi','dzeta');
     
 %% Setting parameters and initial data
@@ -260,7 +261,8 @@ end
 %% Save data if requested
     if options.want_save
         ang_display = round(angles, 3);
-        save(['WaveData/kappa', num2str(kappa),'widths= ', mat2str(widths), 'angles= ', mat2str(ang_display), '.mat'],...
+        save(['WaveData/kappa=', num2str(kappa),'_widths=', mat2str(widths), '_angles=', mat2str(ang_display), '_length=',...
+            mat2str(Lx),'.mat'],...
             'H','U', 'V','h')
     end
   

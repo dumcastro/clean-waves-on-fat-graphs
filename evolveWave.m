@@ -126,10 +126,6 @@ tol = 0.0001*a;
 %while t < T
 %while dist < options.travel_distance*comp_efetivo_can
 while max(h(:, end)) < tol
-    %h_pre = h;
-    %u_pre = u;
-    %v_pre = v;
-    
     k1_u = -dt * (circshift(h, [ -1 0]) - circshift(h, [ 1 0])) / (2 * dxi);
     k1_v = -dt * (circshift(h, [ 0 -1]) - circshift(h, [0 1])) / (2 * dzeta);
     k1_h = -dt * ((circshift(u, [ -1 0]) - circshift(u, [ 1 0])) / (2 * dxi) +...

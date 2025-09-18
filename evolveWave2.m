@@ -84,9 +84,9 @@ surf(Xi,Zeta,h);
 
 %% Setting wave data
 
-H = reshape(h, numel(data.J),1);
-U = reshape(u, numel(data.J),1);
-V = reshape(v, numel(data.J),1);
+H = reshape(h, numel(J),1);
+U = reshape(u, numel(J),1);
+V = reshape(v, numel(J),1);
 
 %% Plot initial data
 surf(Xi, Zeta, h), hold on
@@ -159,7 +159,7 @@ while max(h(:, end)) < tol
         V = [V, reshape(v,numel(J),1)];
         
         surf(Xi, Zeta, h), hold on
-        plot3([data.xi(th_xi) data.xi(end)], [data.zeta(th_zeta) data.zeta(th_zeta)], [0 0], 'r-', 'LineWidth', 2);
+        %plot3([data.xi(th_xi) data.xi(end)], [data.zeta(th_zeta) data.zeta(th_zeta)], [0 0], 'r-', 'LineWidth', 2);
         
         
         %plot3(data.xi(th_xi+10),data.zeta(th_zeta), [0 0], 'x')
@@ -245,7 +245,7 @@ while max(h(:, end)) < tol
     t = t + dt;
     hh = h(floor(end/2),:);   
     [~,loc] = findpeaks(hh,'MinPeakHeight', 0.7*a); % finds index for which final wave prof peaks (center of final gaussian)
-    x0f = data.xi(loc);
+    x0f = xi(loc);
     dist = abs(xi0 - x0f); %gets distance between current and initial peak positions
     
     iter=iter+1;

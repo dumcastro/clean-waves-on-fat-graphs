@@ -1,4 +1,4 @@
-%% Run full experiment
+%% Run full experiment (parameter sweep)
 clear all, clc, close all
 
 %% Main arguments

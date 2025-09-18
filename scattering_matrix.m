@@ -2,7 +2,7 @@ clc, clear all, close all
 
 % Scattering matrix
 
-H = 1; C0 = 1; Bi = 1; Bj = 0.1; Bk = 0.9;
+H = 1; C0 = 1; Bi = 1; Bj = 1; Bk = 1;
 
 a = 1;
 

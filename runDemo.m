@@ -4,14 +4,14 @@ clear all, clc, close all
 addpath('External/')
 
 % Main arguments
-widths = [5, 5 ,5];
-%thetas = pi/12: pi/6 :pi/2-pi/12;
-angles = [0, pi - pi/12, pi + pi/4];
+widths = [5, 5, 5];
+theta2 = pi/12; theta3 = 5*pi/12;
+angles = [0, pi - theta2, pi + theta3];
 
-kappa = 0.6;
+kappa = 0.4;
 
 lambda_f = widths(1)/kappa;
-travel_distance = 4;
+travel_distance = 8;
 Lx = lambda_f * (travel_distance + 1) / 2;
 %Lx = 200;
 
@@ -22,7 +22,7 @@ parameter_station % Go through preferred secondary arguments
 %fg = FatGraph(Lx, widths, angles)
 
 %% Testing create fat graph
-%createFatGraph(Lx, widths, angles,graph_options);
+createFatGraph(Lx, widths, angles,graph_options);
 
 %% Testing process Graph data
 

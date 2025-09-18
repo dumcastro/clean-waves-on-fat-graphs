@@ -4,7 +4,6 @@
 
 function [] = processWaveData(kappa, widths, angles, options)
 
-
 % Set default parameter values
     if nargin < 4
         options = struct();
@@ -128,7 +127,6 @@ function [] = processWaveData(kappa, widths, angles, options)
     end
     %}
 
-
     if options.plot_canonical
        
         mesh(real(w),imag(w),h);
@@ -187,15 +185,19 @@ function [] = processWaveData(kappa, widths, angles, options)
             YY3 = Y3(zindexes3,1:jmp:end);
             %}
 
+            %mesh(X1, Y1, h1, 'edgecolor', 'k'); hold on,
+            %mesh(X2, Y2, h2, 'edgecolor', 'k');
+            %mesh(X3, Y3, h3, 'edgecolor', 'k');
+
             mesh(X1, Y1, h1, 'edgecolor', 'k'); hold on,
             mesh(X2, Y2, h2, 'edgecolor', 'k');
-            mesh(X3, Y3, h3, 'edgecolor', 'k');   
+            mesh(X3, Y3, h3, 'edgecolor', 'k');  
             
             %mesh(data.X(2:end-1,:),data.Y(2:end-1,:),h(2:end-1,:))
             
             hold off,
             view(options.az, options.el);
-            zlim([-0.02,.12])
+            zlim([-0.03,.12])
             %caxis([min(h(:)), max(h(:))]);  % Set the color axis limits based on the data range
             xlabel('X'); ylabel('Y'); zlabel('h','Rotation', 0);
 
@@ -311,6 +313,11 @@ function [] = processWaveData(kappa, widths, angles, options)
             subplot(3, 1, 3);
             plot(xi3,h3)
             %title('Canonical domain width = 1');
+
+            [max(abs(h1)),max(abs(h2)),max(abs(h3))]
+
+            
+
         end   
     end
     

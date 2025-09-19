@@ -19,7 +19,7 @@ wave_vis_options.twoD_animation = false;
 graph_options = struct();
 graph_options.ep = 0.2;
 %graph_options.Nzeta = widths(1)*4;
-graph_options.Nzeta = 50;
+graph_options.Nzeta = 40;
 %graph_options.dxi = widths(1)*0.04;
 %graph_options.dzeta = widths(1)*0.04;
 graph_options.plot_flag = false;
@@ -36,4 +36,4 @@ parameterSweep = false;
 deltaHeightPlot = true;
 
 %% Extra
-travel_distance = 20;
+travel_distance = 10;

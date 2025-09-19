@@ -3,9 +3,10 @@ function [H,U,V,h] = evolveWave(kappa, Lx, widths, angles, options)
 %   Choose geometry of fat graph and solve wave evolution in that domain
 
 % Inputs:
-%   kappa      - width-to-wavelenght regime (default = 0.05)
-%   widths  - Array of branch widths [main, branch1, branch2] (default = [5, 2.5, 2.5])
-%   angles  - Array of branch angles in radians (default = [0, 2*pi/3, 4*pi/3])
+%   kappa   - width-to-wavelenght regime
+%   Lx      - Length of each branch, all equal for now
+%   widths  - Array of branch widths [main, branch2, branch3] 
+%   angles  - Array of branch angles in radians
 %   options - Structure with optional parameters (see below)
 
 %
@@ -22,8 +23,8 @@ function [H,U,V,h] = evolveWave(kappa, Lx, widths, angles, options)
     end
 
     % Default graph parameters
-    if nargin < 1 || isempty(kappa), kappa = 0.05; end
-    if nargin < 2 || isempty(widths), widths = [5, 2.5, 2.5]; end
+    if nargin < 1 || isempty(kappa), kappa = 0.1; end
+    if nargin < 2 || isempty(widths), widths = [5, 5, 5]; end
     if nargin < 3 || isempty(angles), angles = [0, 2*pi/3, 4*pi/3]; end
 
     % Default numerical parameters
@@ -46,7 +47,6 @@ function [H,U,V,h] = evolveWave(kappa, Lx, widths, angles, options)
 
 %% Load pre-generated graph data
 ang_display = round(angles, 3);
-%data = load(['GraphData/widths= ', mat2str(widths), 'angles= ', mat2str(ang_display), '.mat']);
 load(['GraphData/widths=', mat2str(widths), '_angles=', mat2str(ang_display),'_length=',...
             mat2str(Lx), '.mat'],...
             'w', 'J', 'z','th_xi','th_zeta','xi', 'zeta', 'Xi', 'Zeta', 'dxi','dzeta');
@@ -54,19 +54,6 @@ load(['GraphData/widths=', mat2str(widths), '_angles=', mat2str(ang_display),'_l
 %% Setting parameters and initial data
 dt = options.dt;
 T = options.T;
-%{
-dxi = data.options.dxi;
-dzeta = data.options.dzeta;
-%alpha = data.alpha;
-w = data.w;
-xi_lims = data.xi_lims;
-Xi = data.Xi;
-xi = data.xi;
-Zeta = data.Zeta;
-J = data.J;
-th_zeta = data.th_zeta;
-th_xi = data.th_xi;
-%}
 
 % Define Gaussian pulse parameters
 lambda_f = widths(1)/kappa;
@@ -90,42 +77,25 @@ if options.point_source
     v = u;
 end
 
-if options.transverse_wave %(debug purposes)
+if options.transverse_wave %(for debug purposes)
     % Initial data:
     h = a*exp(-(Zeta-4).^2/ (2* kappa^4 * sigma^2));
     u = -h; % necessary velocity for unidirectional solution (down-going mode only)
     v = zeros(size(h));
-
-    %J = ones(size(J));
 end
-
-%h = neumann_correction(h);
-%u = impermiability_u(u);
-%v = impermiability_v(v);
 
 [h, u, v] = enforce_barrier(h, u, v, th_zeta, th_xi);  % Enforce slit barrier
 
 %% Setting wave data
-
 H = reshape(h, numel(J),1);
 U = reshape(u, numel(J),1);
 V = reshape(v, numel(J),1);
 
-%% Plot initial data
-
-surf(Xi, Zeta, h), hold on
-plot3([xi(th_xi) xi(end)], [zeta(th_zeta) zeta(th_zeta)], [0 0], 'r-', 'LineWidth', 2);
-
-%sz = size(J);
-%J = ones(sz);
-
 %% Main loop % RK4 time-stepping
-%dist = 0;
-t = 0; iter=0;
+t = 0; iter = 0;
 t_array = 0:dt:T;
 tol = 0.0001*a;
 %while t < T
-%while dist < options.travel_distance*comp_efetivo_can
 while max(h(:, end)) < tol
     k1_u = -dt * (circshift(h, [ -1 0]) - circshift(h, [ 1 0])) / (2 * dxi);
     k1_v = -dt * (circshift(h, [ 0 -1]) - circshift(h, [0 1])) / (2 * dzeta);
@@ -149,12 +119,10 @@ while max(h(:, end)) < tol
     
     [h2, u2, v2] = enforce_barrier(h2, u2, v2, th_zeta, th_xi);  % Enforce slit barrier on partial rk4 sums
     
-    
     k3_u = -dt * (circshift(h2, [ -1 0]) - circshift(h2, [ 1 0])) / (2 * dxi);
     k3_v = -dt * (circshift(h2, [ 0 -1]) - circshift(h2, [ 0 1])) / (2 * dzeta);
     k3_h = -dt * ((circshift(u2, [ -1 0]) - circshift(u2, [ 1 0])) / (2 * dxi) + ...
         (circshift(v2, [ 0 -1]) - circshift(v2, [ 0 1])) / (2 * dzeta))./J;
-    
     
     h3 = h + k3_h;
     u3 = u + k3_u;
@@ -171,13 +139,7 @@ while max(h(:, end)) < tol
     v = v + (1/6) * (k1_v + 2 * k2_v + 2 * k3_v + k4_v);
     h = h + (1/6) * (k1_h + 2 * k2_h + 2 * k3_h + k4_h);
     
-    v = impermiability_v(v);
-    h = neumann_correction(h);
-    u = impermiability_u(u);
-    
     [h, u, v] = enforce_barrier(h, u, v, th_zeta, th_xi);  % Enforce slit barrier
-    
-    surf(Xi, Zeta, h);
     
     %% Saves selected number of frames
     if mod(iter,floor(numel(t_array)/options.frames))==0 || t == T-1-dt
@@ -186,105 +148,25 @@ while max(h(:, end)) < tol
         U = [U, reshape(u,numel(J),1)];
         V = [V, reshape(v,numel(J),1)];
         
-        surf(Xi, Zeta, h), hold on
-        plot3([xi(th_xi) xi(end)], [zeta(th_zeta) zeta(th_zeta)], [0 0], 'r-', 'LineWidth', 2);
-        
-        hold off
-        
     end
     
-    %{
-    if mod(iter,200)==0 && strcmp(visual,'physical')
-    
-        %saveframe()
-         
-    hh=h;
-    
-    jmp = 1;
-    
-    h1=hh(1:end,1:jmp:th_xi+1);
-    h2=hh(1:th_zeta,th_xi-1:jmp:end);
-    h3=hh(th_zeta+1:end,th_xi-1:jmp:end);
-    
-    XX1 = X1(1:end,1:jmp:end);
-    YY1 = Y1(1:end,1:jmp:end);
-    
-    XX2 = X2(1:end,1:jmp:end);
-    YY2 = Y2(1:end,1:jmp:end);
-    
-    XX3 = X3(1:jmp:end,1:jmp:end);
-    YY3 = Y3(1:jmp:end,1:jmp:end);
-    
-    %subplot(1,2,1)
-    mesh(XX1, YY1, h1, 'edgecolor', 'k'); hold on,
-    mesh(XX2, YY2, h2, 'edgecolor', 'k');
-    mesh(XX3, YY3, h3, 'edgecolor', 'k');
-    hold off,
-    view(az, el);
-    zlim([-0.15,.2])
-    %caxis([min(h(:)), max(h(:))]);  % Set the color axis limits based on the data range
-    xlabel('X'); ylabel('Y'); zlabel('h');
-    title(['Time evolution of wave profile = ',num2str(t)]);
-    
-    %subplot(1,2,2)
-    %surf(Xi,Zeta,h)
-    
-    drawnow;
-    
-    elseif mod(iter,50)==0 && strcmp(visual,'canonical')
-        %
-        hh=h;
-        
-        h1=hh(:,1:th_xi+1);
-        h2=hh(1:th_zeta,th_xi-1:end);
-        h3=hh(th_zeta+1:end,th_xi-1:end);
-        
-        %subplot(1, 2, 1);
-        %mesh(X1, Y1, h1, 'edgecolor', 'k'); hold on,
-        %mesh(X2, Y2, h2, 'edgecolor', 'k');
-        %mesh(X3, Y3, h3, 'edgecolor', 'k');
-        
-        %hold off,
-        %
-        %subplot(1, 2, 2);
-        mesh(xi,zeta,h)
-        zlim([-0.05,a])
-        
-        %set(gcf, 'Renderer', 'opengl');  % Better rendering quality
-        %set(gca, 'FontSize', 14);        % Make axes labels crisper
-        %shading interp                   % Smooth surface shading
-        %lighting gouraud                 % Optional: if you use lighting
-        
-        drawnow;
-        frame = getframe(gcf); % Capture current figure
-        writeVideo(vwriter, frame); % Write frame to video
-        
-    end
-  
-    pause(0.001)
-    %}
     % Update time
     t = t + dt;
-    %hh = h(floor(end/2),:);   
-    %[~,loc] = findpeaks(hh,'MinPeakHeight', 0.7*a); % finds index for which final wave prof peaks (center of final gaussian)
-    %x0f = data.xi(loc);
-    %dist = abs(xi0 - x0f); %gets distance between current and initial peak positions
     
     iter=iter+1;
     
-    display(['W. height at the end: ', num2str(max(h(:, end))), ' out of', num2str(tol)])
-    display(['Time: ', num2str(t)])
+    disp(['W. height at the end: ', num2str(max(h(:, end))), ' out of', num2str(tol)])
+    disp(['Time: ', num2str(t)])
     
     if t > T
-        message = ['Exceeded final time ceiling. T = ', num2str(T)]
+        disp(['Exceeded final time ceiling. T = ', num2str(T)])
         break
     end
 
     if max(h(:, end)) >= tol
-        message = 'Wave front reaching the end of comp. domain. Stop.'
+        disp('Wave front reaching the end of comp. domain. Stop.')
         break
     end
-
 
 end
 
@@ -295,12 +177,10 @@ end
             mat2str(Lx), '.mat'], ...
             'H','U', 'V','h');
     end
-  
-% Aux functions    
-   
-%% Slit boundary condition function
+       
+%% Boundary condition function
 function [h,u, v] = enforce_barrier(h, u, v, b1, b2)
-    % Strict barrier enforcement
+    % Slit barrier enforcement
     h(b1+1,b2:end) = h(b1+2,b2:end);   
     u(b1+1,b2:end) = 0;
     %v(b1+1,b2:end) = 0;
@@ -309,7 +189,7 @@ function [h,u, v] = enforce_barrier(h, u, v, b1, b2)
     u(b1,b2:end) = 0;
     %v(b1,b2:end) = 0;
 
-    %
+    % Outer walls conditions
     v(:, 1) = 0; % Left boundary
     v(:, end) = 0; % Right boundary
 
@@ -323,33 +203,6 @@ function [h,u, v] = enforce_barrier(h, u, v, b1, b2)
     h(end, :) = h(end-1, :); % Top boundary
     %}
     
-end
-
-
-%% Exterior boundary contidtion functions
-function v = impermiability_v(v)
-    % Set v to zero along the boundaries
-    v(:, 1) = 0; % Left boundary
-    v(:, end) = 0; % Right boundary
-    
-    %v(th_zeta+1,th_xi-1:end)=0;
-    %v(th_zeta,th_xi-1:end)=0;
-    
-end
-
-function u = impermiability_u(u)
-    % Set v to zero along the boundaries
-    u(1, :) = 0; % Bottom boundary
-    u(end, :) = 0; % Top boundary
-end
-
-function h=neumann_correction(h)
-
-    h(:, 1) = h(:, 2); % Left boundary
-    h(:, end) = h(:, end-1); % Right boundary   
-    
-    h(1, :) = h(2, :); % Bottom boundary
-    h(end, :) = h(end-1, :); % Top boundary
 end
 
 end

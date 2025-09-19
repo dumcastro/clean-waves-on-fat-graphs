@@ -50,10 +50,9 @@ function [] = processGraphData(Lx, widths, angles, options)
     end
 
     %% Load fat Graph
-    ang_display = round(angles, 3);
-    %data = load(['GraphData/widths= ', mat2str(widths), 'angles= ', mat2str(ang_display), '.mat']);
-    load(['GraphData/widths= ', mat2str(widths), 'angles= ', mat2str(ang_display), '.mat'],...
-                'w', 'J', 'z','th_xi','th_zeta','xi', 'zeta', 'Xi', 'Zeta', 'dxi','dzeta', 'vert');
+    [~, graphName] = standardNaming(Lx, widths, angles, 1);
+
+    load(graphName,'w', 'J', 'z','th_xi','th_zeta','xi', 'zeta', 'Xi', 'Zeta', 'dxi','dzeta', 'vert')
 
     %% Plot results if requested
     if options.plotMap
@@ -76,8 +75,7 @@ function [] = processGraphData(Lx, widths, angles, options)
         figure;
         
         tmp_Xi = real(w);
-        tmp_Zeta = imag( w);
-        J = J;
+        tmp_Zeta = imag(w);
         
         jmp_xi = options.jmp_xi;
         jmp_zeta = options.jmp_zeta;

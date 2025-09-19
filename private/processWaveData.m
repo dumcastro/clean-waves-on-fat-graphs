@@ -11,7 +11,7 @@ function [] = processWaveData(kappa, Lx, widths, angles, options)
 
     % Default graph parameters
     if nargin < 1 || isempty(kappa), kappa = 0.25; end
-    if nargin < 2 || isempty(widths), widths = [1, 0.5, 0.5]; end
+    if nargin < 2 || isempty(widths), widths = [5, 5, 5]; end
     if nargin < 3 || isempty(angles), angles = [0, 2*pi/3, 4*pi/3]; end
 
     % Default numerical parameters
@@ -28,7 +28,6 @@ function [] = processWaveData(kappa, Lx, widths, angles, options)
         'az',-20,...
         'el',40);
     
-
     % Merge user options with defaults
     option_names = fieldnames(default_options);
     for k = 1:length(option_names)
@@ -37,17 +36,15 @@ function [] = processWaveData(kappa, Lx, widths, angles, options)
         end
     end
 
-    %% Load wave Graph
-    ang_display = round(angles .* 1000) ./ 1000;
+    %% Load relevant wave and graph data
+    [waveName, graphName] = standardNaming(Lx, widths, angles, kappa);
 
-    load(['GraphData/widths=', mat2str(widths), '_angles=', mat2str(ang_display), '_length=',...
-            mat2str(Lx),'.mat'],...
+    load(graphName,...
             'w', 'J', 'z','th_xi','th_zeta','xi',...
             'zeta', 'Xi', 'Zeta', 'dxi','dzeta','longlegVal','shortlegVal');
 
-    load(['WaveData/kappa=', num2str(kappa),'_widths=', mat2str(widths), '_angles=', mat2str(ang_display), '_length=',...
-            mat2str(Lx),'.mat'], ...
-            'H','U', 'V','h')
+    load(waveName, ...
+            'H','h')
 
     %%
     l = longlegVal;
@@ -65,7 +62,6 @@ function [] = processWaveData(kappa, Lx, widths, angles, options)
     X3=real(z3); Y3=imag(z3);
     
     %% Dividing the domain into sectors from plotting purposes
-    
     jmp = options.jmp_xi;
     jmpz = options.jmp_zeta;
 
@@ -82,53 +78,11 @@ function [] = processWaveData(kappa, Lx, widths, angles, options)
     z2=z(zindexes2,th_xi:jmp:end); %branch 2
     z3=z(zindexes3,th_xi:jmp:end); %branch 3
 
-    % Extract the real and imaginary parts of the forward-mapped grid
-    %X = real(z);
-    %Y = imag(z);
-
     X1=real(z1); Y1=imag(z1);
     X2=real(z2); Y2=imag(z2);
     X3=real(z3); Y3=imag(z3);
     end
     
-    %%
-    %{
-    if options.plot_physical %(This is outdated)
-    hh=h;
-
-    jmp = 1;
-
-    h1=hh(1:end,1:jmp:th_xi+1);
-    h2=hh(1:th_zeta,th_xi-1:jmp:end);
-    h3=hh(th_zeta+1:end,th_xi-1:jmp:end);
-
-    XX1 = X1(1:end,1:jmp:end);
-    YY1 = Y1(1:end,1:jmp:end);
-
-    XX2 = X2(1:end,1:jmp:end);
-    YY2 = Y2(1:end,1:jmp:end);
-
-    XX3 = X3(1:jmp:end,1:jmp:end);
-    YY3 = Y3(1:jmp:end,1:jmp:end);
-
-    %subplot(1,2,1)
-    mesh(XX1, YY1, h1, 'edgecolor', 'k'); hold on,
-    mesh(XX2, YY2, h2, 'edgecolor', 'k');
-    mesh(XX3, YY3, h3, 'edgecolor', 'k');
-    hold off,
-    view(options.az, options.el);
-    zlim([-0.15,.2])
-    %caxis([min(h(:)), max(h(:))]);  % Set the color axis limits based on the data range
-    xlabel('X'); ylabel('Y'); zlabel('h');
-    title(['Time evolution of wave profile = ',num2str(t)]);
-
-    %subplot(1,2,2)
-    %surf(Xi,Zeta,h)
-
-    drawnow;
-    end
-    %}
-
     if options.plot_canonical
        
         mesh(real(w),imag(w),h);
@@ -159,48 +113,18 @@ function [] = processWaveData(kappa, Lx, widths, angles, options)
             if numel(widths) == 3
 
             hh=h;
-
-            %{
-            jmp = options.jmp_xi;
-            jmpz = options.jmp_zeta;
-            
-            ngrid = size(h);
-            
-            [Nzeta, ~] = deal(ngrid(1),ngrid(2));
-            
-            zindexes1 = [2:jmpz:th_zeta-1, th_zeta, th_zeta+1, th_zeta+2:jmpz:Nzeta-1];
-            zindexes2 = [2:jmpz:th_zeta-1, th_zeta];
-            zindexes3 = [th_zeta+1, th_zeta+2:jmpz:Nzeta-1];
-            %}
+          
             h1=hh(zindexes1,[1:jmp:th_xi,th_xi]);
             h2=hh(zindexes2,th_xi:jmp:end);
             h3=hh(zindexes3,th_xi:jmp:end);
-            
-            %{
-            XX1 = X1(zindexes1,[1:jmp:end, end]);
-            YY1 = Y1(zindexes1,[1:jmp:end, end]);
-            
-            XX2 = X2(zindexes2,1:jmp:end);
-            YY2 = Y2(zindexes2,1:jmp:end);
-
-            XX3 = X3(zindexes3,1:jmp:end);
-            YY3 = Y3(zindexes3,1:jmp:end);
-            %}
-
-            %mesh(X1, Y1, h1, 'edgecolor', 'k'); hold on,
-            %mesh(X2, Y2, h2, 'edgecolor', 'k');
-            %mesh(X3, Y3, h3, 'edgecolor', 'k');
 
             mesh(X1, Y1, h1, 'edgecolor', 'k'); hold on,
             mesh(X2, Y2, h2, 'edgecolor', 'k');
             mesh(X3, Y3, h3, 'edgecolor', 'k');  
             
-            %mesh(data.X(2:end-1,:),data.Y(2:end-1,:),h(2:end-1,:))
-            
             hold off,
             view(options.az, options.el);
             zlim([-0.03,.12])
-            %caxis([min(h(:)), max(h(:))]);  % Set the color axis limits based on the data range
             xlabel('X'); ylabel('Y'); zlabel('h','Rotation', 0);
 
             set(gca, 'FontSize', 16)   % makes axis numbers larger
@@ -315,11 +239,7 @@ function [] = processWaveData(kappa, Lx, widths, angles, options)
             subplot(3, 1, 3);
             plot(xi3,h3)
             %title('Canonical domain width = 1');
-
-            [max(abs(h1)),max(abs(h2)),max(abs(h3))]
-
-            
-
+           
         end   
     end
     

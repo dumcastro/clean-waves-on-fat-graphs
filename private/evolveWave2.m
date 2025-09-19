@@ -3,8 +3,9 @@ function [H,U,V,h] = evolveWave2(kappa, Lx, widths, angles, options)
 %   Choose geometry of fat graph and solve wave evolution in that domain
 
 % Inputs:
-%   kappa      - width-to-wavelenght regime (default = 0.05)
-%   widths  - Array of branch widths [main, branch1, branch2] (default = [5, 2.5, 2.5])
+%   kappa   - width-to-wavelenght regime 
+%   Lx      - Length of each branch
+%   widths  - Array of branch widths [main, branch1, branch2] 
 %   angles  - Array of branch angles in radians (default = [0, 2*pi/3, 4*pi/3])
 %   options - Structure with optional parameters (see below)
 
@@ -44,10 +45,9 @@ function [H,U,V,h] = evolveWave2(kappa, Lx, widths, angles, options)
     end
 
 %% Load pre-generated graph data
-ang_display = round(angles, 3);
-load(['GraphData/widths= ', mat2str(widths), 'angles= ', mat2str(ang_display), '_length=',...
-            mat2str(Lx),'.mat'],...
-            'J','xi', 'zeta', 'Xi', 'Zeta', 'dxi','dzeta');
+[~, graphName] = standardNaming(Lx, widths, angles, kappa);
+
+load(graphName,'J','xi', 'zeta', 'Xi', 'Zeta', 'dxi','dzeta');
     
 %% Setting parameters and initial data
 dt = options.dt;
@@ -55,8 +55,7 @@ T = options.T;
 
 % Define Gaussian pulse parameters
 lambda_f = widths(1)/kappa;
-comp_efetivo_can = lambda_f;
-sigma = comp_efetivo_can / 6.065; % (this is what sigma must be to make the effective wavelength in canonical
+sigma = lambda_f / 6.065; % (this is what sigma must be to make the effective wavelength in canonical
 % space to be alpha*lambda_f)
 
 xi0 = ((xi(end))+(xi(1)))/ 2;
@@ -79,18 +78,11 @@ h = neumann_correction(h);
 u = impermiability_u(u);
 v = impermiability_v(v);
 
-surf(Xi,Zeta,h);
-
-%[h, u, v] = enforce_barrier(h, u, v, th_zeta, th_xi);  % Enforce slit barrier
-
 %% Setting wave data
 
 H = reshape(h, numel(J),1);
 U = reshape(u, numel(J),1);
 V = reshape(v, numel(J),1);
-
-%% Plot initial data
-surf(Xi, Zeta, h), hold on
 
 %% Main loop % RK4 time-stepping
 %dist = 0;
@@ -98,7 +90,6 @@ t = 0; iter=0;
 t_array = 0:dt:T;
 tol = 0.001*a;
 %while t < T
-%while dist < options.travel_distance*comp_efetivo_can
 while max(h(:, end)) < tol
     k1_u = -dt * (circshift(h, [ -1 0]) - circshift(h, [ 1 0])) / (2 * dxi);
     k1_v = -dt * (circshift(h, [ 0 -1]) - circshift(h, [0 1])) / (2 * dzeta);
@@ -156,92 +147,11 @@ while max(h(:, end)) < tol
     if mod(iter,floor(numel(t_array)/options.frames))==0 || t == T-1-dt
         
         H = [H, reshape(h,numel(J),1)];
-        U = [U, reshape(u,numel(J),1)];
-        V = [V, reshape(v,numel(J),1)];
-        
-        surf(Xi, Zeta, h), hold on
-        %plot3([data.xi(th_xi) data.xi(end)], [data.zeta(th_zeta) data.zeta(th_zeta)], [0 0], 'r-', 'LineWidth', 2);
-        
-        
-        %plot3(data.xi(th_xi+10),data.zeta(th_zeta), [0 0], 'x')
-        %plot3(data.xi(th_xi+10),data.zeta(th_zeta+1), [0 0], 'x')
-        %plot3(data.xi(th_xi+10),data.zeta(th_zeta-1), [0 0], 'x')
-        %plot3(data.xi(th_xi+10),data.zeta(th_zeta-2), [0 0], 'x')
-        
-        hold off
-        
+        %U = [U, reshape(u,numel(J),1)];
+        %V = [V, reshape(v,numel(J),1)];
+                
     end
     
-    %{
-    if mod(iter,200)==0 && strcmp(visual,'physical')
-    
-        %saveframe()
-         
-    hh=h;
-    
-    jmp = 1;
-    
-    h1=hh(1:end,1:jmp:th_xi+1);
-    h2=hh(1:th_zeta,th_xi-1:jmp:end);
-    h3=hh(th_zeta+1:end,th_xi-1:jmp:end);
-    
-    XX1 = X1(1:end,1:jmp:end);
-    YY1 = Y1(1:end,1:jmp:end);
-    
-    XX2 = X2(1:end,1:jmp:end);
-    YY2 = Y2(1:end,1:jmp:end);
-    
-    XX3 = X3(1:jmp:end,1:jmp:end);
-    YY3 = Y3(1:jmp:end,1:jmp:end);
-    
-    %subplot(1,2,1)
-    mesh(XX1, YY1, h1, 'edgecolor', 'k'); hold on,
-    mesh(XX2, YY2, h2, 'edgecolor', 'k');
-    mesh(XX3, YY3, h3, 'edgecolor', 'k');
-    hold off,
-    view(az, el);
-    zlim([-0.15,.2])
-    %caxis([min(h(:)), max(h(:))]);  % Set the color axis limits based on the data range
-    xlabel('X'); ylabel('Y'); zlabel('h');
-    title(['Time evolution of wave profile = ',num2str(t)]);
-    
-    %subplot(1,2,2)
-    %surf(Xi,Zeta,h)
-    
-    drawnow;
-    
-    elseif mod(iter,50)==0 && strcmp(visual,'canonical')
-        %
-        hh=h;
-        
-        h1=hh(:,1:th_xi+1);
-        h2=hh(1:th_zeta,th_xi-1:end);
-        h3=hh(th_zeta+1:end,th_xi-1:end);
-        
-        %subplot(1, 2, 1);
-        %mesh(X1, Y1, h1, 'edgecolor', 'k'); hold on,
-        %mesh(X2, Y2, h2, 'edgecolor', 'k');
-        %mesh(X3, Y3, h3, 'edgecolor', 'k');
-        
-        %hold off,
-        %
-        %subplot(1, 2, 2);
-        mesh(xi,zeta,h)
-        zlim([-0.05,a])
-        
-        %set(gcf, 'Renderer', 'opengl');  % Better rendering quality
-        %set(gca, 'FontSize', 14);        % Make axes labels crisper
-        %shading interp                   % Smooth surface shading
-        %lighting gouraud                 % Optional: if you use lighting
-        
-        drawnow;
-        frame = getframe(gcf); % Capture current figure
-        writeVideo(vwriter, frame); % Write frame to video
-        
-    end
-  
-    pause(0.001)
-    %}
     % Update time
     t = t + dt;
     hh = h(floor(end/2),:);   
@@ -260,10 +170,10 @@ end
 
 %% Save data if requested
     if options.want_save
-        ang_display = round(angles, 3);
-        save(['WaveData/kappa=', num2str(kappa),'_widths=', mat2str(widths), '_angles=', mat2str(ang_display), '_length=',...
-            mat2str(Lx),'.mat'],...
-            'H','U', 'V','h')
+
+       waveName = standardNaming(Lx, widths, angles, kappa);
+       save(waveName,'H','U', 'V','h')
+
     end
   
 % Aux functions    

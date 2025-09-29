@@ -1,8 +1,7 @@
 %% Parameter wall
 %% Wave parameters
 wave_options = struct();
-wave_options.point_source = false;
-wave_options.T = 400; %Final time of execution
+wave_options.T = 100; %Final time of execution
 wave_options.want_save = true;
 
 %% Wave view options
@@ -17,10 +16,7 @@ wave_vis_options.twoD_animation = true;
 %% Graph parameters
 graph_options = struct();
 graph_options.ep = 0.02;
-%graph_options.Nzeta = widths(1)*4;
-graph_options.Nzeta = 30;
-%graph_options.dxi = widths(1)*0.04;
-%graph_options.dzeta = widths(1)*0.04;
+graph_options.Nzeta = 20;
 graph_options.plot_flag = false;
 
 %% Graph view options

@@ -146,17 +146,12 @@ title('Kappa high, angle high')
 %}
 %---------------------
 function [h1,h2,h3,th_xi,xi] = loading(kappa, angles, widths, Lx)
-ang_display = round(angles .* 1000) ./ 1000;
-load(['GraphData/widths=', mat2str(widths), '_angles=', mat2str(ang_display),'_length=',...
-            mat2str(Lx), '.mat'],...
-        'w','th_xi','th_zeta');
 
-load(['WaveData/kappa=', num2str(kappa),'_widths=', mat2str(widths), '_angles=', mat2str(ang_display), '_length=',...
-            mat2str(Lx),'.mat'],'h')
+[waveName, graphName] = standardNaming(Lx, widths, angles, kappa);
 
-%tmp = size(H);
+load(graphName,'w','th_xi','th_zeta');
+load(waveName,'h')
 
-%h = reshape(H(:,tmp(2)),size(z));
 h1 = h(floor(end/2),1:th_xi);
 h2 = h(floor((end+th_zeta)/2),th_xi:end);
 h3 = h(floor((1+th_zeta)/2),th_xi:end);

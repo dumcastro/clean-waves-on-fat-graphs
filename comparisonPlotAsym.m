@@ -6,10 +6,10 @@ addpath('External/')
 %Setting parameters
 widths = [5, 5, 5]; 
 
-parameter_station % Go through preferred secondary arguments
+parameterStation % Go through preferred secondary arguments
 
-kappas = [0.2,0.3];
-thetas3 = 5*pi/12;
+kappas = 0.1:0.1:0.4;
+thetas3 = pi/12:pi/6:5*pi/12;
 
 %% Parameter sweep color grid view
 anglesStart = [0, pi - pi/30, pi + 0];
@@ -21,7 +21,7 @@ D = zeros(length(kappas),length(thetas3));
 for ii = 1:length(kappas)
     kappa = kappas(ii);
     lambda_f = widths(1)/kappa;
-    Lx = lambda_f * (travel_distance + 1) / 2;
+    Lx = lambda_f * (travelDistance + 1) / 2;
     
     for jj = 1:length(thetas3)
         theta = thetas3(jj);
@@ -84,7 +84,17 @@ figure(2)
 %imagesc(D)
 imagesc(thetas3,kappas,D)
 ylabel('\kappa', 'Rotation',0)
+
+yticks(kappas)
+
 xlabel('\theta_{asym}')
+
+% Define tick positions
+xticks(thetas3)
+
+% Define corresponding labels
+xticklabels({'\pi/12','3\pi/12','5\pi/12'})
+
 colorbar
 
 set(gca, 'FontSize',18, ...      % tick labels larger

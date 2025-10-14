@@ -125,7 +125,7 @@ end
 th_xi = find(xi<targ_xi, 1, 'last'); % update xi index for vert 
 th_zeta = find(zeta<targ_zeta, 1, 'last'); % threshold for zeta slicing (zeta index for vert)
 
-[Xi, Zeta] = meshgrid(xi, zeta);
+[Xi, Zeta] = meshgrid(xi, zeta(2:end));
 w = Xi + 1i * Zeta;
 
 z = eval(f_tilde, alpha*w+1i*alpha*options.ep);

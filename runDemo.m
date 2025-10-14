@@ -9,12 +9,12 @@ widths = [5, 4, 6];
 theta2 = pi/12; theta3 = 3*pi/12;
 angles = [0, pi - theta2, pi + theta3];
 
-kappa = 0.15;
+kappa = 0.2;
 
 % Secondary parameters
-parameter_station % Go through preferred secondary arguments
+parameterStation % Go through preferred secondary arguments
 lambda_f = widths(1)/kappa;
-Lx = lambda_f * (travel_distance + 1) / 2;
+Lx = lambda_f * (travelDistance + 1) / 2;
 %Lx = 200;
 
 %% Testing create fat graph

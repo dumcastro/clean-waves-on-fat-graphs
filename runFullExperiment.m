@@ -9,17 +9,17 @@ theta2 = pi/30;
 anglesStart = [0, pi - theta2, pi + 0];
 angles = anglesStart;
 
-kappas = 0.25;
-thetas3 = 5*pi/12;
+kappas = 0.1:0.1:0.4;
+thetas3 = pi/12:pi/6:5*pi/12;
 
-parameter_station % Go through preferred secondary arguments
+parameterStation % Go through preferred secondary arguments
 
 for kk = 1:length(width_sweep)
     widths = width_sweep{kk};
     for ii = 1:length(kappas)
         kappa = kappas(ii);
         lambda_f = widths(1)/kappa;
-        Lx = lambda_f * (travel_distance + 1) / 2;
+        Lx = lambda_f * (travelDistance + 1) / 2;
     
         for jj = 1:length(thetas3)
             angles(3) = anglesStart(3) + thetas3(jj);

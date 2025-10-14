@@ -1,4 +1,7 @@
 %% Parameter wall
+
+travelDistance = 8;
+
 %% Wave parameters
 wave_options = struct();
 wave_options.T = 100; %Final time of execution
@@ -27,8 +30,5 @@ options.plotJ = true;
 options.visualizeGrid = true;
 
 %% Comparison plot options (asym)
-parameterSweep = false;
-deltaHeightPlot = true;
-
-%% Extra
-travel_distance = 8;
+parameterSweep = true;
+deltaHeightPlot = false;

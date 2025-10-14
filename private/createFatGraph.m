@@ -39,8 +39,7 @@ default_options = struct(...
     'dzeta', 0.1, ...
     'Nzeta', 22,...
     'ep', 0.01, ...
-    'want_save', true, ...
-    'plot_flag', false);
+    'want_save', true);
 
 % Merge user options with defaults
 option_names = fieldnames(default_options);
@@ -169,28 +168,6 @@ end
     figure
     surf(real(w), imag(w), J);
     %}
-
-    %% Plot results if requested
-    if options.plot_flag
-        figure;
-        subplot(1, 3, 1);
-        plot(P, 'b', 'LineWidth', 2, 'k');
-        title('Physical Region');
-
-        subplot(1, 3, 2);
-        plot(C_tilde, 'r', 'LineWidth', 2);
-        title('Numerical canonical domain');
-
-        subplot(1, 3, 3);
-        plot(C, 'y', 'LineWidth', 2);
-        title('Canonical domain width = 1');
-
-        figure;
-        surf(real(w), imag(w), J);
-        xlabel('Real Axis');
-        ylabel('Imaginary Axis');
-        title('Jacobian Determinant of SC Transformation');
-    end
 
     %% Save data if requested
     if options.want_save

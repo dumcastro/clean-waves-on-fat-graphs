@@ -71,8 +71,8 @@ function [] = processWaveData(kappa, Lx, widths, angles, options)
     
     if numel(widths) == 3
     zindexes1 = [2:jmpz:th_zeta-1, th_zeta, th_zeta+1, th_zeta+2:jmpz:Nzeta-1];
-    zindexes2 = [2:jmpz:th_zeta-1, th_zeta];
-    zindexes3 = [th_zeta+1, th_zeta+2:jmpz:Nzeta-1];
+    zindexes2 = [2:jmpz:th_zeta-1];
+    zindexes3 = [th_zeta+1 th_zeta+2:jmpz:Nzeta-1];
     
     z1=z(zindexes1,[1:jmp:th_xi,th_xi]); %branch 1 
     z2=z(zindexes2,th_xi:jmp:end); %branch 2

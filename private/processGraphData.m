@@ -96,15 +96,16 @@ function [] = processGraphData(Lx, widths, angles, options)
 %% Visualize Grid
     if options.visualizeGrid
         % Visualize with scatter
-        gzoom = .5;
+        gzoom = .4;
         
         figure;
         scatter(Xi(:), Zeta(:), 100, 'filled');  % Flatten grids and plot
         xlim([real(vert)-gzoom,real(vert)+gzoom])
         ylim([imag(vert)-gzoom,imag(vert)+gzoom])
         %title('Meshgrid Visualization');
-        xlabel('\xi'); ylabel('\zeta', 'Rotation', 0);
-        grid on; hold on,
+        %xlabel('\xi'); ylabel('\zeta', 'Rotation', 0);
+        %grid on; 
+        hold on,
         
         xcoord = [real(vert), xi(end)];
         ycoord = [imag(vert), imag(vert)];
@@ -112,12 +113,11 @@ function [] = processGraphData(Lx, widths, angles, options)
         scatter(real(vert), imag(vert) ,120,'red','d','filled')
 
         plot(xcoord,ycoord, 'r-', 'LineWidth', 2)
+        axis off
 
         set(gca, 'FontSize', 16)   % makes axis numbers larger
 
         
-
-
     end
 end
 

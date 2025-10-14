@@ -89,10 +89,8 @@ yticks(kappas)
 
 xlabel('\theta_{asym}')
 
-% Define tick positions
 xticks(thetas3)
 
-% Define corresponding labels
 xticklabels({'\pi/12','3\pi/12','5\pi/12'})
 
 colorbar

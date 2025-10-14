@@ -9,8 +9,8 @@ theta2 = pi/30;
 anglesStart = [0, pi - theta2, pi + 0];
 angles = anglesStart;
 
-kappas = 0.1:0.1:0.4;
-thetas3 = pi/12:pi/6:5*pi/12;
+kappas = 0.04:0.02:0.5;
+thetas3 = pi/30:pi/30:20*pi/30;
 
 parameterStation % Go through preferred secondary arguments
 

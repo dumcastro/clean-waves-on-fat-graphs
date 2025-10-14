@@ -1,6 +1,6 @@
 %% Parameter wall
 
-travelDistance = 8;
+travelDistance = 10;
 
 %% Wave parameters
 wave_options = struct();
@@ -10,17 +10,16 @@ wave_options.want_save = true;
 %% Wave view options
 wave_vis_options = struct();
 wave_vis_options.play_movie_phys = true;
-wave_vis_options.play_movie_canonical = true;
-wave_vis_options.jmp_xi = 2;
+wave_vis_options.play_movie_canonical = false;
+wave_vis_options.jmp_xi = 4;
 wave_vis_options.jmp_zeta = 4;
 wave_vis_options.twoD_plot = false;
-wave_vis_options.twoD_animation = true;
+wave_vis_options.twoD_animation = false;
 
 %% Graph parameters
 graph_options = struct();
-graph_options.ep = 0.02;
-graph_options.Nzeta = 20;
-graph_options.plot_flag = false;
+graph_options.ep = 0.01;
+graph_options.Nzeta = 30;
 
 %% Graph view options
 graph_vis_options = struct();

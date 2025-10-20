@@ -1,13 +1,17 @@
-function [] = parameterSweepVis(widthTriplets, kappas, theta2, thetas3,travelDistance,colorGrid,deltaHeightPlot)
+function [] = parameterSweepVis(widthTriplets, kappas, theta2, thetas3,travelDistance,options)
 
 anglesStart = [0, pi - theta2, pi + 0];
 angles = anglesStart;
 
-D = zeros(length(kappas),length(thetas3));
-Dw = zeros(length(kappas),length(widthTriplets));
+DFixedWidths = zeros(length(kappas),length(thetas3));
+DFixedTheta = zeros(length(kappas),length(widthTriplets));
+DFixedKappa = zeros(length(widthTriplets),length(thetas3));
+
+widthsAsymRatio = [];
 
 for kk = 1:length(widthTriplets)
     widths = widthTriplets{kk};
+    widthsAsymRatio = [widthsAsymRatio, widths(3)/widths(2)];
 
 for ii = 1:length(kappas)
     kappa = kappas(ii);
@@ -20,9 +24,12 @@ for ii = 1:length(kappas)
     
         [~,h2,h3,th_xi,xi] = loading(kappa, angles, widths,Lx);
 
-        D(ii,jj) = (max(h3)-max(h2))/abs(max(h3));
+        DFixedWidths(ii,jj) = (max(h3)-max(h2))/abs(max(h3));
+        DFixedTheta(ii,kk) = (max(h3)-max(h2))/abs(max(h3));
+        DFixedKappa(kk,jj) = (max(h3)-max(h2))/abs(max(h3));
 
-        if deltaHeightPlot
+
+        if options.deltaHeightPlot % (for fixed widths only)
             Dindex = (ii-1)*length(thetas3) + jj;
 
             xi3 = xi(th_xi:end);
@@ -70,50 +77,97 @@ for ii = 1:length(kappas)
 end
 end
 
+%% theta and kappa influence on deltaHeight 
+if options.colorGridWidthsFixed
 
-if colorGrid
-figure(2)
-%imagesc(D)
-imagesc(thetas3,kappas,D)
-ylabel('\kappa', 'Rotation',0)
+    if ~(all(widthTriplets{1} == [5,5,5]) && length(widthTriplets)==1)
+        error('Adjust width to 5 5 5')
+    end
 
-yticks(kappas)
-
-xlabel('\theta_{asym}')
-
-xticks(thetas3)
-
-xticklabels({'\pi/12','3\pi/12','5\pi/12'})
-
-colorbar
-
-set(gca, 'FontSize',18, ...      % tick labels larger
-     'LineWidth',1.5, ...    % axis lines thicker
-     'TickDir','out', ...    % ticks outward
-     'Box','off')            % remove top/right frame
+    figure(2)
+    %imagesc(D)
+    imagesc(thetas3,kappas,DFixedWidths)
+    ylabel('\kappa', 'Rotation',0)
+    
+    yticks(kappas)
+    
+    xlabel('\theta_{asym}')
+    
+    xticks(thetas3)
+    
+    xticklabels({'\pi/12','3\pi/12','5\pi/12'})
+    
+    colorbar
+    
+    set(gca, 'FontSize',18, ...      % tick labels larger
+         'LineWidth',1.5, ...    % axis lines thicker
+         'TickDir','out', ...    % ticks outward
+         'Box','off')            % remove top/right frame
 end
 
-if colorGridWidths
+%% theta and width influence...
 
-figure(3)
-%imagesc(D)
-imagesc(thetas3,kappas,D)
-ylabel('\kappa', 'Rotation',0)
+%
+if options.colorGridKappaFixed
 
-yticks(kappas)
+    if ~ isscalar(kappas)
+        error('Choose a fixed kappa')
+    else
+        disp(['kappa is ', num2str(kappa)])
+    end
 
-xlabel('\theta_{asym}')
+    figure(3)
+    %imagesc(D)
+    imagesc(thetas3,widthsAsymRatio,DFixedKappa)
+    ylabel('widths', 'Rotation',0)
+    
+    yticks(widthsAsymRatio)
+    
+    xlabel('\theta_{asym}')
+    
+    xticks(thetas3)
+    
+    %xticklabels({'\pi/12','3\pi/12','5\pi/12'})
+    
+    colorbar
+    
+    set(gca, 'FontSize',18, ...      % tick labels larger
+         'LineWidth',1.5, ...    % axis lines thicker
+         'TickDir','out', ...    % ticks outward
+         'Box','off')            % remove top/right frame
 
-xticks(thetas3)
+end
+%}
 
-xticklabels({'\pi/12','3\pi/12','5\pi/12'})
+%% kappa and widths influence...
 
-colorbar
+if options.colorGridThetaFixed
 
-set(gca, 'FontSize',18, ...      % tick labels larger
-     'LineWidth',1.5, ...    % axis lines thicker
-     'TickDir','out', ...    % ticks outward
-     'Box','off')            % remove top/right frame
+    if ~ isscalar(thetas3)
+        error('Choose a fixed theta')
+    else
+        disp(['thetas are ', num2str(theta2), ' ',num2str(thetas3)])
+    end
+
+    figure(3)
+    %imagesc(D)
+    imagesc(widthsAsymRatio,kappas,DFixedTheta)
+    ylabel('\kappa', 'Rotation',0)
+    
+    yticks(kappas)
+    
+    xlabel('WAR')
+    
+    xticks(widthsAsymRatio)
+    
+    %xticklabels({'\pi/12','3\pi/12','5\pi/12'})
+    
+    colorbar
+    
+    set(gca, 'FontSize',18, ...      % tick labels larger
+         'LineWidth',1.5, ...    % axis lines thicker
+         'TickDir','out', ...    % ticks outward
+         'Box','off')            % remove top/right frame
 
 end
 

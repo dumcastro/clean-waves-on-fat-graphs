@@ -1,19 +1,18 @@
 
-travelDistance = 10;
+travelDistance = 12;
 
 %% Parameter sweep view options
 sweepVisOptions = struct();
 sweepVisOptions.colorGridWidthsFixed = false; 
-sweepVisOptions.colorGridThetaFixed = true;
+sweepVisOptions.colorGridThetaFixed = false;
 sweepVisOptions.colorGridKappaFixed = false;
 
 sweepVisOptions.deltaHeightPlot = false; % (for fixed widths only)
 
-
 %% Wave parameters
 wave_options = struct();
-wave_options.T = 100; %Final time of execution
-wave_options.want_save = true;
+wave_options.T = 200; %Final time of execution
+wave_options.want_save = true; 
 
 %% Wave view options
 wave_vis_options = struct();
@@ -27,7 +26,9 @@ wave_vis_options.twoD_animation = false;
 %% Graph parameters
 graph_options = struct();
 graph_options.ep = 0.01;
-graph_options.Nzeta = 40;
+graph_options.Nzeta = 40; 
+% Nzeta: number of mesh points along the transver direction
+% this gives dzeta and we set dxi = dzeta
 
 %% Graph view options
 graph_vis_options = struct();

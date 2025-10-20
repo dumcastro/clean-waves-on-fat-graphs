@@ -4,7 +4,7 @@ clear all, clc, close all
 addpath('External/')
 
 % Main arguments
-widths = [5, 1.5, 7.5];
+widths = [5, 5, 5];
 
 theta2 = pi/6; theta3 = pi/6;
 angles = [0, pi - theta2, pi + theta3];

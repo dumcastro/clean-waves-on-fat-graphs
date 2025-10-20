@@ -156,7 +156,7 @@ if options.colorGridThetaFixed
     
     yticks(kappas)
     
-    xlabel('WAR')
+    xlabel('W.A.R.')
     
     xticks(widthsAsymRatio)
     

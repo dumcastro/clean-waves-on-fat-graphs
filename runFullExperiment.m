@@ -1,38 +1,31 @@
 %% Run full experiment (parameter sweep)
 clear all, clc, close all
 
-%% Main arguments
-width_sweep = {[5,5,5]};
+addpath('External/')
 
-theta2 = pi/30;
+%% Sweep parameters
+widthTriplets = {[5,5,6],[5,5,7],[5,5,8],[5,5,9]};
 
-anglesStart = [0, pi - theta2, pi + 0];
-angles = anglesStart;
+theta2 = pi/6;
 
-kappas = 0.04:0.02:0.5;
-thetas3 = pi/30:pi/30:20*pi/30;
+kappas = 0.1:0.1:0.4;
+thetas3 = pi/6;
 
-parameterStation % Go through preferred secondary arguments
+parameterStation
 
-for kk = 1:length(width_sweep)
-    widths = width_sweep{kk};
-    for ii = 1:length(kappas)
-        kappa = kappas(ii);
-        lambda_f = widths(1)/kappa;
-        Lx = lambda_f * (travelDistance + 1) / 2;
-    
-        for jj = 1:length(thetas3)
-            angles(3) = anglesStart(3) + thetas3(jj);
-    
-            createFatGraph(Lx, widths, angles,graph_options);
-    
-            evolveWave(kappa, Lx, widths, angles,wave_options);
-    
-            close all
-        end
-        angles = anglesStart;
+%% Construct data
 
-    end
-end
+parameterSweep(widthTriplets, kappas, theta2, thetas3)
+
+%% Visualize data
+
+%parameterSweepVis(widthTriplets, kappas, theta2, thetas3, ...
+    %travelDistance, colorGrid, deltaHeightPlot)
+
+
+
+
+
+
 
 

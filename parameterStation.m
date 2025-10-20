@@ -11,15 +11,15 @@ wave_options.want_save = true;
 wave_vis_options = struct();
 wave_vis_options.play_movie_phys = true;
 wave_vis_options.play_movie_canonical = false;
-wave_vis_options.jmp_xi = 4;
-wave_vis_options.jmp_zeta = 4;
+wave_vis_options.jmp_xi = 1;
+wave_vis_options.jmp_zeta = 1;
 wave_vis_options.twoD_plot = false;
 wave_vis_options.twoD_animation = false;
 
 %% Graph parameters
 graph_options = struct();
 graph_options.ep = 0.01;
-graph_options.Nzeta = 30;
+graph_options.Nzeta = 40;
 
 %% Graph view options
 graph_vis_options = struct();
@@ -29,5 +29,5 @@ options.plotJ = true;
 options.visualizeGrid = true;
 
 %% Comparison plot options (asym)
-parameterSweep = true;
+colorGrid = true;
 deltaHeightPlot = false;

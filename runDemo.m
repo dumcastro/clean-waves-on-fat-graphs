@@ -4,12 +4,12 @@ clear all, clc, close all
 addpath('External/')
 
 % Main arguments
-widths = [5, 5, 5];
+widths = [5, 1.5, 7.5];
 
-theta2 = pi/12; theta3 = 5*pi/12;
+theta2 = pi/6; theta3 = pi/6;
 angles = [0, pi - theta2, pi + theta3];
 
-kappa = 0.2;
+kappa = 0.3;
 
 % Secondary parameters
 parameterStation % Go through preferred secondary arguments
@@ -21,10 +21,10 @@ Lx = lambda_f * (travelDistance + 1) / 2;
 %createFatGraph(Lx, widths, angles,graph_options);
 
 %% Testing process Graph data
-processGraphData(Lx, widths, angles,graph_vis_options)
+%processGraphData(Lx, widths, angles,graph_vis_options)
 
 %% Testing evolveWave
 %evolveWave(kappa, Lx, widths, angles,wave_options);
 
 %% Testing processWave
-%processWaveData(kappa, Lx, widths, angles,wave_vis_options)
+processWaveData(kappa, Lx, widths, angles,wave_vis_options)
